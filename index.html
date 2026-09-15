@@ -89,21 +89,38 @@
 
             <!-- 관리자 대시보드 (로그인 후 표시) -->
             <div id="admin-dashboard" class="hidden space-y-8">
-                <!-- IP 관리 섹션 -->
+                <!-- 방문자 전체 IP 기록 섹션 -->
                 <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-4">
-                    <h3 class="text-lg font-bold flex items-center"><i class="fa-solid fa-network-wired text-indigo-400 mr-2"></i> 접속 IP 관리 및 차단 설정</h3>
+                    <h3 class="text-lg font-bold flex items-center"><i class="fa-solid fa-users text-blue-400 mr-2"></i> 사이트 방문자 전체 IP 접속 기록</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-300">
                             <thead class="bg-slate-900 text-slate-400 uppercase">
                                 <tr>
                                     <th class="p-3">IP 주소</th>
-                                    <th class="p-3">최근 작성자</th>
-                                    <th class="p-3">상태</th>
+                                    <th class="p-3">접속 시간</th>
+                                    <th class="p-3">기기 정보 (User Agent)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-visitor-list" class="divide-y divide-slate-700">
+                                <tr><td colspan="3" class="p-4 text-center text-slate-500">불러오는 중...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- IP 차단 관리 섹션 -->
+                <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-4">
+                    <h3 class="text-lg font-bold flex items-center"><i class="fa-solid fa-network-wired text-indigo-400 mr-2"></i> 차단된 IP 관리</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase">
+                                <tr>
+                                    <th class="p-3">IP 주소</th>
                                     <th class="p-3 text-right">관리</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-ip-list" class="divide-y divide-slate-700">
-                                <tr><td colspan="4" class="p-4 text-center text-slate-500">불러오는 중...</td></tr>
+                                <tr><td colspan="2" class="p-4 text-center text-slate-500">불러오는 중...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -486,7 +503,7 @@
 
         <!-- 푸터 -->
         <footer class="bg-white border-t border-slate-200 mt-16 py-6 text-center text-xs text-slate-400">
-            <p>© 2026 Gekojoon. All rights reserved. Made by 경준 & idea by 유찬</p>
+            <p>&copy; 2026 Gekojoon. All rights reserved. Made by 경준 &amp; idea by 유찬</p>
         </footer>
     </div>
 
@@ -517,10 +534,41 @@
             }
         });
 
-        // 관리자 비밀번호 확인 함수 (비밀번호: kyungjoon2026)
+        // 페이지 접속 시 방문자 IP 자동 수집 및 Firestore 저장 로직 (세션당 1회 기록)
+        window.addEventListener('firebase-ready', async () => {
+            if (!sessionStorage.getItem('visitor_logged')) {
+                let userIp = "unknown";
+                try {
+                    const ipRes = await fetch('https://api64.ipify.org?format=json');
+                    const ipData = await ipRes.json();
+                    userIp = ipData.ip;
+                } catch(e1) {
+                    try {
+                        const ipRes2 = await fetch('https://ipinfo.io/json');
+                        const ipData2 = await ipRes2.json();
+                        userIp = ipData2.ip;
+                    } catch(e2) {
+                        userIp = "127.0.0.1";
+                    }
+                }
+
+                try {
+                    await window.addDoc(window.collection(window.db, "visitor_logs"), {
+                        ip: userIp,
+                        userAgent: navigator.userAgent,
+                        visitedAt: window.serverTimestamp()
+                    });
+                    sessionStorage.setItem('visitor_logged', 'true');
+                } catch (err) {
+                    console.error("Visitor IP log error:", err);
+                }
+            }
+        });
+
+        // 관리자 비밀번호 확인 함수 (비밀번호: 1)
         function checkAdminPassword() {
             const pw = document.getElementById('admin-pw').value;
-            if (pw === 'kyungjoon2026') {
+            if (pw === '1') {
                 document.getElementById('admin-login-box').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 loadAdminData();
@@ -671,7 +719,7 @@
                 return;
             }
 
-            // 안정적인 IP 수집 (여러 공인 IP API 백업 적용)
+            // 안정적인 IP 수집
             let userIp = "unknown";
             try {
                 const ipRes = await fetch('https://api64.ipify.org?format=json');
@@ -718,8 +766,25 @@
             }
         }
 
-        // 관리자 데이터 로드 (IP 관리 및 메모 수정/삭제)
+        // 관리자 데이터 로드 (방문자 IP 기록, 차단 IP, 메모 관리)
         async function loadAdminData() {
+            // 1. 방문자 IP 로그 로드
+            const visitorSnap = await window.getDocs(window.query(window.collection(window.db, "visitor_logs"), window.orderBy("visitedAt", "desc")));
+            let visitorHtml = "";
+            visitorSnap.forEach((d) => {
+                const data = d.data();
+                const visitTime = data.visitedAt ? new Date(data.visitedAt.toDate()).toLocaleString() : '방금 전';
+                visitorHtml += `
+                    <tr>
+                        <td class="p-3 font-mono text-blue-300 font-bold">${escapeHtml(data.ip || 'unknown')}</td>
+                        <td class="p-3 text-slate-400">${visitTime}</td>
+                        <td class="p-3 text-slate-500 text-[11px] truncate max-w-xs">${escapeHtml(data.userAgent || '-')}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('admin-visitor-list').innerHTML = visitorHtml || '<tr><td colspan="3" class="p-4 text-center text-slate-500">방문자 기록이 없습니다.</td></tr>';
+
+            // 2. 메모 및 IP 관리
             const memoSnap = await window.getDocs(window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc")));
             let memoHtml = "";
             memoSnap.forEach((d) => {
@@ -740,36 +805,23 @@
             });
             document.getElementById('admin-memo-list').innerHTML = memoHtml || '<p class="text-xs text-slate-500">메모가 없습니다.</p>';
 
+            // 3. 차단된 IP 관리
             const blockedSnap = await window.getDocs(window.collection(window.db, "blocked_ips"));
             const blockedIps = new Set();
             blockedSnap.forEach(d => blockedIps.add(d.data().ip));
 
-            let ipMap = {};
-            memoSnap.forEach(d => {
-                const data = d.data();
-                if (data.ip) {
-                    ipMap[data.ip] = data.author;
-                }
-            });
-
             let ipHtml = "";
-            for (let ip in ipMap) {
-                const blocked = blockedIps.has(ip);
+            blockedIps.forEach(ip => {
                 ipHtml += `
                     <tr>
-                        <td class="p-3 font-mono text-blue-300">${ip}</td>
-                        <td class="p-3">${escapeHtml(ipMap[ip])}</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-bold ${blocked ? 'bg-red-900/60 text-red-300' : 'bg-emerald-900/60 text-emerald-300'}">${blocked ? '차단됨' : '정상'}</span></td>
+                        <td class="p-3 font-mono text-red-300">${ip}</td>
                         <td class="p-3 text-right">
-                            ${blocked ? 
-                                `<button onclick="unblockIp('${ip}')" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded text-xs font-bold">차단 해제</button>` : 
-                                `<button onclick="blockIp('${ip}')" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-xs font-bold">IP 차단</button>`
-                            }
+                            <button onclick="unblockIp('${ip}')" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded text-xs font-bold">차단 해제</button>
                         </td>
                     </tr>
                 `;
-            }
-            document.getElementById('admin-ip-list').innerHTML = ipHtml || '<tr><td colspan="4" class="p-4 text-center text-slate-500">수집된 IP가 없습니다.</td></tr>';
+            });
+            document.getElementById('admin-ip-list').innerHTML = ipHtml || '<tr><td colspan="2" class="p-4 text-center text-slate-500">차단된 IP가 없습니다.</td></tr>';
         }
 
         async function adminDeleteMemo(id) {
@@ -786,12 +838,6 @@
                 loadAdminData();
                 alert('메모가 수정되었습니다.');
             }
-        }
-
-        async function blockIp(ip) {
-            await window.setDoc(window.doc(window.db, "blocked_ips", ip.replace(/\./g, '_')), { ip: ip });
-            alert(`IP(${ip})가 차단되었습니다.`);
-            loadAdminData();
         }
 
         async function unblockIp(ip) {
