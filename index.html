@@ -19,14 +19,16 @@
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // [보안 설정] 오직 kyungjoon.com (및 테스트용 로컬)에서만 작동하도록 차단
+        // [보안 설정] kyungjoon.com 또는 causchool.com (및 테스트용 로컬)에서만 작동하도록 허용
         const hostname = window.location.hostname;
-        if (!hostname.includes("kyungjoon.com") && hostname !== "localhost" && hostname !== "127.0.0.1") {
+        const isAllowed = hostname.includes("kyungjoon.com") || hostname.includes("causchool.com") || hostname === "localhost" || hostname === "127.0.0.1";
+
+        if (!isAllowed) {
             document.body.innerHTML = `
                 <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background:#0f172a; color:#f8fafc; font-family:sans-serif; text-align:center; padding:20px;">
                     <div style="background:#1e293b; padding:40px; border-radius:24px; box-shadow:0 10px 25px rgba(0,0,0,0.3); border:1px solid #334155;">
                         <h1 style="font-size:24px; color:#ef4444; margin-bottom:12px;"><i class="fa-solid fa-shield-halved"></i> 접근 권한 제한</h1>
-                        <p style="color:#94a3b8; font-size:15px; line-height:1.6;">이 웹사이트는 보안 정책에 따라 오직 공식 도메인인<br><strong style="color:#60a5fa;">kyungjoon.com</strong> 에서만 정상적으로 작동합니다.</p>
+                        <p style="color:#94a3b8; font-size:15px; line-height:1.6;">이 웹사이트는 보안 정책에 따라 공식 도메인<br>(<strong style="color:#60a5fa;">kyungjoon.com</strong> 또는 <strong style="color:#60a5fa;">causchool.com</strong>)에서만 정상적으로 작동합니다.</p>
                     </div>
                 </div>
             `;
@@ -597,7 +599,7 @@
         </div>
     </div>
 
-    <!-- 푸터 (요청하신 문구 반영) -->
+    <!-- 푸터 -->
     <footer class="bg-white border-t border-slate-200 mt-16 py-6 text-center text-xs text-slate-400">
         <p>© 2026 CAU Elementary School. All rights reserved. Made by 경준 & idea by 유찬</p>
     </footer>
@@ -633,7 +635,7 @@
             activeDayBtn.classList.remove('bg-white', 'text-slate-600', 'border', 'hover:bg-slate-100');
         }
 
-        // 장소 데이터베이스 (요청하신 이미지 매핑 반영)
+        // 장소 데이터베이스
         const infoDatabase = {
             airport1: { title: "김포공항 출발 준비", image: "IMG_2.jpg", desc: "학교 집합 후 김포공항으로 이동하여 친구들과 인솔 선생님의 안내에 따라 안전하고 설레는 제주행 비행기 탑승 준비를 합니다." },
             airport2: { title: "제주국제공항", image: "IMG_3.jpg", desc: "푸른 바다 위를 날아 제주국제공항에 도착! 본격적인 제주도 교육여행의 일정이 시작되는 설레는 장소입니다." },
@@ -657,7 +659,7 @@
             returnflight: { title: "제주공항 출발 및 안전 귀가", image: "IMG_23.jpg", desc: "3일간의 소중한 제주도 교육여행 추억을 가슴에 품고, 비행기에 탑승하여 안전하게 학교로 귀가합니다." }
         };
 
-        // 모달 열기 함수 (다중 이미지 지원)
+        // 모달 열기 함수
         function openModal(key) {
             const data = infoDatabase[key];
             if (!data) return;
@@ -687,7 +689,7 @@
             document.getElementById('detail-modal').classList.add('hidden');
         }
 
-        // 파이어베이스 실시간 공유 메모장 로직 (로그인 불필요)
+        // 파이어베이스 실시간 공유 메모장 로직
         window.addEventListener('firebase-ready', () => {
             const memoListEl = document.getElementById('shared-memo-list');
             const q = window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc"));
@@ -718,7 +720,7 @@
             });
         });
 
-        // HTML 특수문자 이스케이프 (보안 처리)
+        // HTML 특수문자 이스케이프
         function escapeHtml(str) {
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
