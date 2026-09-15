@@ -93,7 +93,7 @@
                 <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-bold flex items-center"><i class="fa-solid fa-users text-blue-400 mr-2"></i> 사이트 방문자 전체 IP 접속 기록</h3>
-                        <span class="text-xs text-slate-400">ℹ️ 행이나 IP를 클릭하면 상세 정보를 전체 볼 수 있습니다.</span>
+                        <span class="text-xs text-slate-400">ℹ️ IP 행을 클릭하면 상세 정보를 전체 볼 수 있습니다.</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-300">
@@ -809,43 +809,49 @@
             }
         }
 
+        // 전역 방문자 로그 데이터 배열 (안전한 인덱스 참조 방식)
+        window.visitorLogsData = [];
+
+        window.clickVisitorRow = function(index) {
+            const item = window.visitorLogsData[index];
+            if (item) {
+                openIpDetailModal(item.ip, item.userAgent, item.visitedAt);
+            }
+        };
+
         // 관리자 데이터 로드 (방문자 IP 기록, 차단 IP, 메모 관리)
         async function loadAdminData() {
             // 1. 방문자 IP 로그 로드
             const visitorSnap = await window.getDocs(window.query(window.collection(window.db, "visitor_logs"), window.orderBy("visitedAt", "desc")));
+            window.visitorLogsData = [];
             let visitorHtml = "";
+            let idx = 0;
+
             visitorSnap.forEach((d) => {
                 const data = d.data();
                 const visitTime = data.visitedAt ? new Date(data.visitedAt.toDate()).toLocaleString() : '방금 전';
                 const safeIp = escapeHtml(data.ip || 'unknown');
                 const rawUa = data.userAgent || '-';
                 const safeUa = escapeHtml(rawUa);
-                const attrUa = rawUa.replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+                
+                window.visitorLogsData.push({
+                    ip: data.ip || 'unknown',
+                    userAgent: rawUa,
+                    visitedAt: visitTime
+                });
                 
                 visitorHtml += `
-                    <tr class="hover:bg-slate-800/60 cursor-pointer transition visitor-row" data-ip="${safeIp}" data-ua="${attrUa}" data-time="${visitTime}">
+                    <tr class="hover:bg-slate-800/80 cursor-pointer transition border-b border-slate-800" onclick="clickVisitorRow(${idx})">
                         <td class="p-3 font-mono text-blue-300 font-bold underline flex items-center">
                             <i class="fa-solid fa-magnifying-glass-plus mr-1.5 text-xs text-blue-400"></i>${safeIp}
                         </td>
                         <td class="p-3 text-slate-400">${visitTime}</td>
-                        <td class="p-3 text-slate-500 text-[11px] truncate max-w-xs">${safeUa}</td>
+                        <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${safeUa}</td>
                     </tr>
                 `;
+                idx++;
             });
             document.getElementById('admin-visitor-list').innerHTML = visitorHtml || '<tr><td colspan="3" class="p-4 text-center text-slate-500">방문자 기록이 없습니다.</td></tr>';
-
-            // 방문자 행 클릭 이벤트 위임 리스너 설정 (User-Agent 문자열 특수문자 오류 원천 차단)
-            const visitorListEl = document.getElementById('admin-visitor-list');
-            visitorListEl.onclick = function(e) {
-                const tr = e.target.closest('tr');
-                if (!tr) return;
-                const ip = tr.getAttribute('data-ip');
-                const ua = tr.getAttribute('data-ua');
-                const time = tr.getAttribute('data-time');
-                if (ip) {
-                    openIpDetailModal(ip, ua, time);
-                }
-            };
 
             // 2. 메모 및 IP 관리
             const memoSnap = await window.getDocs(window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc")));
