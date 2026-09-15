@@ -553,12 +553,15 @@
             isRecaptchaVerified = false;
         }
 
-        // 관리자 라우팅 감지 (joon.causchool.com 서브도메인 또는 /joon 경로 접속 시 활성화)
+        // 관리자 라우팅 감지 (joon.causchool.com 서브도메인, /joon 경로, 또는 ?admin=1 테스트 파라미터 접속 시 활성화)
         window.addEventListener('DOMContentLoaded', () => {
             const hostname = window.location.hostname;
             const path = window.location.pathname;
+            const search = window.location.search;
             
-            if (hostname.startsWith('joon.') || path.includes('/joon')) {
+            const isAdminRoute = hostname === 'joon.causchool.com' || hostname.startsWith('joon.') || path.includes('/joon') || search.includes('admin=1');
+
+            if (isAdminRoute) {
                 document.getElementById('admin-view').classList.remove('hidden');
                 document.getElementById('user-view').classList.add('hidden');
             }
@@ -837,7 +840,7 @@
                     const rawUa = data.userAgent || '-';
                     const safeUa = escapeHtml(rawUa);
                     
-                    const dataKey = 'ip_key_' + count + '_' + Math.random().toString(36.substring(2, 7));
+                    const dataKey = 'ip_key_' + count + '_' + Math.random().toString(36).substring(2, 7);
                     window._ipDataMap[dataKey] = {
                         ip: data.ip || 'unknown',
                         userAgent: rawUa,
