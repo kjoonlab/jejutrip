@@ -809,89 +809,97 @@
             }
         }
 
-        // 전역 방문자 로그 데이터 배열 (안전한 인덱스 참조 방식)
-        window.visitorLogsData = [];
+        // 완벽하게 안전한 키 기반 IP 데이터 레지스트리 (전체보기 팝업 오류 원인 원천 차단)
+        window._ipDataMap = {};
 
-        window.openIpDetailModalByIndex = function(idx) {
-            const item = window.visitorLogsData[idx];
+        window.openIpDetailModalByKey = function(key) {
+            const item = window._ipDataMap[key];
             if (item) {
                 openIpDetailModal(item.ip, item.userAgent, item.visitedAt);
+            } else {
+                alert('접속 정보를 찾을 수 없습니다.');
             }
         };
 
         // 관리자 데이터 로드 (방문자 IP 기록, 차단 IP, 메모 관리)
         async function loadAdminData() {
-            // 1. 방문자 IP 로그 로드
-            const visitorSnap = await window.getDocs(window.query(window.collection(window.db, "visitor_logs"), window.orderBy("visitedAt", "desc")));
-            window.visitorLogsData = [];
-            let visitorHtml = "";
-            let idx = 0;
+            try {
+                // 1. 방문자 IP 로그 로드
+                const visitorSnap = await window.getDocs(window.query(window.collection(window.db, "visitor_logs"), window.orderBy("visitedAt", "desc")));
+                window._ipDataMap = {};
+                let visitorHtml = "";
+                let count = 0;
 
-            visitorSnap.forEach((d) => {
-                const data = d.data();
-                const visitTime = data.visitedAt ? new Date(data.visitedAt.toDate()).toLocaleString() : '방금 전';
-                const safeIp = escapeHtml(data.ip || 'unknown');
-                const rawUa = data.userAgent || '-';
-                const safeUa = escapeHtml(rawUa);
-                
-                window.visitorLogsData.push({
-                    ip: data.ip || 'unknown',
-                    userAgent: rawUa,
-                    visitedAt: visitTime
+                visitorSnap.forEach((d) => {
+                    const data = d.data();
+                    const visitTime = data.visitedAt ? new Date(data.visitedAt.toDate()).toLocaleString() : '방금 전';
+                    const safeIp = escapeHtml(data.ip || 'unknown');
+                    const rawUa = data.userAgent || '-';
+                    const safeUa = escapeHtml(rawUa);
+                    
+                    const dataKey = 'ip_key_' + count + '_' + Math.random().toString(36.substring(2, 7));
+                    window._ipDataMap[dataKey] = {
+                        ip: data.ip || 'unknown',
+                        userAgent: rawUa,
+                        visitedAt: visitTime
+                    };
+                    
+                    visitorHtml += `
+                        <tr class="hover:bg-slate-800/80 transition border-b border-slate-800">
+                            <td class="p-3 font-mono text-blue-300 font-bold flex items-center justify-between space-x-2">
+                                <span>${safeIp}</span>
+                                <button onclick="openIpDetailModalByKey('${dataKey}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-bold transition shadow-sm whitespace-nowrap">전체보기</button>
+                            </td>
+                            <td class="p-3 text-slate-400">${visitTime}</td>
+                            <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${safeUa}</td>
+                        </tr>
+                    `;
+                    count++;
                 });
-                
-                visitorHtml += `
-                    <tr class="hover:bg-slate-800/80 transition border-b border-slate-800">
-                        <td class="p-3 font-mono text-blue-300 font-bold flex items-center justify-between space-x-2">
-                            <span>${safeIp}</span>
-                            <button onclick="openIpDetailModalByIndex(${idx})" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-bold transition shadow-sm whitespace-nowrap">전체보기</button>
-                        </td>
-                        <td class="p-3 text-slate-400">${visitTime}</td>
-                        <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${safeUa}</td>
-                    </tr>
-                `;
-                idx++;
-            });
-            document.getElementById('admin-visitor-list').innerHTML = visitorHtml || '<tr><td colspan="3" class="p-4 text-center text-slate-500">방문자 기록이 없습니다.</td></tr>';
+                document.getElementById('admin-visitor-list').innerHTML = visitorHtml || '<tr><td colspan="3" class="p-4 text-center text-slate-500">방문자 기록이 없습니다.</td></tr>';
 
-            // 2. 메모 및 IP 관리
-            const memoSnap = await window.getDocs(window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc")));
-            let memoHtml = "";
-            memoSnap.forEach((d) => {
-                const data = d.data();
-                const id = d.id;
-                memoHtml += `
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-2">
-                        <div class="flex justify-between items-center text-xs text-slate-400">
-                            <span>작성자: <strong class="text-white">${escapeHtml(data.author)}</strong> (IP: ${data.ip || '기록 없음'})</span>
-                            <div class="space-x-2">
-                                <button onclick="adminEditMemo('${id}', \`${escapeHtml(data.content)}\`)" class="text-blue-400 hover:underline">수정</button>
-                                <button onclick="adminDeleteMemo('${id}')" class="text-red-400 hover:underline">삭제</button>
+                // 2. 메모 및 IP 관리
+                const memoSnap = await window.getDocs(window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc")));
+                let memoHtml = "";
+                memoSnap.forEach((d) => {
+                    const data = d.data();
+                    const id = d.id;
+                    memoHtml += `
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-2">
+                            <div class="flex justify-between items-center text-xs text-slate-400">
+                                <span>작성자: <strong class="text-white">${escapeHtml(data.author)}</strong> (IP: ${data.ip || '기록 없음'})</span>
+                                <div class="space-x-2">
+                                    <button onclick="adminEditMemo('${id}', \`${escapeHtml(data.content)}\`)" class="text-blue-400 hover:underline">수정</button>
+                                    <button onclick="adminDeleteMemo('${id}')" class="text-red-400 hover:underline">삭제</button>
+                                </div>
                             </div>
+                            <p class="text-sm text-slate-200">${escapeHtml(data.content)}</p>
                         </div>
-                        <p class="text-sm text-slate-200">${escapeHtml(data.content)}</p>
-                    </div>
-                `;
-            });
-            document.getElementById('admin-memo-list').innerHTML = memoHtml || '<p class="text-xs text-slate-500">메모가 없습니다.</p>';
+                    `;
+                });
+                document.getElementById('admin-memo-list').innerHTML = memoHtml || '<p class="text-xs text-slate-500">메모가 없습니다.</p>';
 
-            // 3. 차단된 IP 관리
-            const blockedSnap = await window.getDocs(window.collection(window.db, "blocked_ips"));
-            const blockedIps = new Set();
-            blockedSnap.forEach(d => blockedIps.add(d.data().ip));
+                // 3. 차단된 IP 관리
+                const blockedSnap = await window.getDocs(window.collection(window.db, "blocked_ips"));
+                const blockedIps = new Set();
+                blockedSnap.forEach(d => blockedIps.add(d.data().ip));
 
-            let ipHtml = "";
-            blockedIps.forEach(ip => {
-                ipHtml += `
-                    <tr>
-                        <td class="p-3 font-mono text-red-300">${ip}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="unblockIp('${ip}')" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded text-xs font-bold">차단 해제</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            document.getElementById('admin-ip-list').innerHTML = ipHtml || '<tr><td colspan="2" class="p-4 text-center text-slate-500">차단된 IP가 없습니다.</td></tr>';
+                let ipHtml = "";
+                blockedIps.forEach(ip => {
+                    ipHtml += `
+                        <tr>
+                            <td class="p-3 font-mono text-red-300">${ip}</td>
+                            <td class="p-3 text-right">
+                                <button onclick="unblockIp('${ip}')" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded text-xs font-bold">차단 해제</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('admin-ip-list').innerHTML = ipHtml || '<tr><td colspan="2" class="p-4 text-center text-slate-500">차단된 IP가 없습니다.</td></tr>';
+            } catch (err) {
+                console.error("Admin data load error:", err);
+                document.getElementById('admin-visitor-list').innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-400">데이터를 불러오는 중 권한 오류가 발생했습니다.</td></tr>';
+            }
         }
 
         async function adminDeleteMemo(id) {
@@ -918,76 +926,3 @@
     </script>
 </body>
 </html>
-```eof
-
-이제 관리자 센터 방문자 목록의 IP 주소 옆에 깔끔하고 작은 **[전체보기]** 버튼이 생성되었으며, 안전한 인덱스 방식으로 클릭 시 곧바로 상세 정보 모달창이 정상 작동합니다!버튼 크기를 작게 줄이고, PC와 모바일 환경(마우스 클릭 및 터치)에서 모두 정상적으로 작동하도록 수정한 코드입니다. 아래 예시를 참고해서 적용해 보세요!
-
-### 작고 확실하게 작동하는 전보기 버튼 예시
-
-```html
-<!-- 작은 크기의 전보기 버튼 -->
-<button id="telegraphBtn" style="width: 70px; height: 70px; border-radius: 50%; background-color: #ff4757; color: white; border: none; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-  전보
-</button>
-
-<script>
-  const btn = document.getElementById('telegraphBtn');
-
-  // 웹 오디오 API를 이용한 비프음 생성
-  let audioCtx = null;
-  let currentTone = null;
-
-  function startTone() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = 600; // 전신 부호 주파수
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    currentTone = { osc, gain };
-  }
-
-  function stopTone() {
-    if (currentTone) {
-      currentTone.osc.stop();
-      currentTone.osc.disconnect();
-      currentTone = null;
-    }
-  }
-
-  // PC 마우스 이벤트
-  btn.addEventListener('mousedown', () => {
-    startTone();
-    btn.style.transform = 'scale(0.95)';
-  });
-
-  btn.addEventListener('mouseup', () => {
-    stopTone();
-    btn.style.transform = 'scale(1)';
-  });
-
-  btn.addEventListener('mouseleave', () => {
-    stopTone();
-    btn.style.transform = 'scale(1)';
-  });
-
-  // 모바일 터치 이벤트
-  btn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    startTone();
-    btn.style.transform = 'scale(0.95)';
-  });
-
-  btn.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    stopTone();
-    btn.style.transform = 'scale(1)';
-  });
-</script>
