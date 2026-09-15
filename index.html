@@ -166,6 +166,7 @@
 
             <!-- 1. 전체 일정 카드뷰 탭 -->
             <section id="tab-full" class="tab-content space-y-10">
+                <!-- 1일차 카드 그리드 -->
                 <div class="space-y-4">
                     <div class="flex items-center space-x-3 border-b pb-3 border-slate-200">
                         <span class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-bold">1일차</span>
@@ -290,25 +291,52 @@
                     <button onclick="switchDay(2)" id="day-btn-2" class="day-tab px-6 py-2.5 rounded-xl font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">2일차 일정</button>
                     <button onclick="switchDay(3)" id="day-btn-3" class="day-tab px-6 py-2.5 rounded-xl font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">3일차 일정</button>
                 </div>
+
+                <!-- 요일별 패널 1 -->
                 <div id="day-panel-1" class="day-content space-y-3">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
                         <h3 class="text-lg font-bold text-blue-600 border-b pb-2">1일차 (9/20, 일) 상세 타임라인</h3>
                         <div class="space-y-3 text-sm">
-                            <div class="flex justify-between pb-2 border-b"><span>08:00 ~ 08:20</span><span>학교 집합</span></div>
-                            <div class="flex justify-between pb-2 border-b"><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('airport1')">08:30 ~ 11:10 학교 출발 및 김포공항 이동 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-blue-600 w-32">08:00 ~ 08:20</span><span>학교 집합</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-blue-600 w-32">08:30 ~ 11:10</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('airport1')">학교 출발, 김포공항 이동 및 탑승 준비 🚌 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-blue-600 w-32">11:20 ~ 12:40</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('airport2')">김포공항 → 제주국제공항 이동 ✈️ (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-blue-600 w-32">13:20 ~ 14:30</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('buffet')">중식 (제주 칠성뷔페) 🍽️ (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-blue-600 w-32">15:30 ~ 16:20</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('hallym')">한림공원 🌳 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-blue-600 w-32">16:30 ~ 17:30</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('themapark')">더마파크 공연 🐎 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-blue-600 w-32">18:10 ~ 19:10</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('pork')">석식 (숙성돈가) 🥩 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-blue-600 w-32">19:40 ~ 20:30</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('cheonjiyeon')">천지연 폭포 야경 🌊 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between"><span class="font-semibold text-blue-600 w-32">21:00 ~</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('hotel')">숙소 도착 및 휴식 🏨 (클릭)</span></div>
                         </div>
                     </div>
                 </div>
+
+                <!-- 요일별 패널 2 -->
                 <div id="day-panel-2" class="day-content hidden space-y-3">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
                         <h3 class="text-lg font-bold text-emerald-600 border-b pb-2">2일차 (9/21, 월) 상세 타임라인</h3>
-                        <div class="space-y-3 text-sm"><div class="flex justify-between pb-2 border-b"><span>07:00 ~ 08:30 기상 및 호텔 조식</span></div></div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-emerald-600 w-32">07:00 ~ 08:30</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('breakfast')">호텔 조식 🍳 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-emerald-600 w-32">10:30 ~ 11:20</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('railbike')">제주 레일바이크 🚂 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-emerald-600 w-32">11:30 ~ 12:30</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('seongsan')">성산일출봉 ⛰️ (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-emerald-600 w-32">12:30 ~ 13:30</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('phoenix')">중식 (휘닉스 제주 코지) 🍲 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-emerald-600 w-32">14:00 ~ 15:00</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('folkvillage')">제주 민속촌 🏡 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-emerald-600 w-32">16:00 ~ 17:40</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('alivemuseum')">박물관은 살아있다 & 런닝맨 🏃‍♂️ (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-emerald-600 w-32">18:00 ~ 19:00</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('dombegogi')">석식 (전원일기 돔베고기) 🥬 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between"><span class="font-semibold text-emerald-600 w-32">19:20 ~</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('convenience')">편의점 이용 🏪 (클릭)</span></div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- 요일별 패널 3 -->
                 <div id="day-panel-3" class="day-content hidden space-y-3">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
                         <h3 class="text-lg font-bold text-amber-600 border-b pb-2">3일차 (9/22, 화) 상세 타임라인</h3>
-                        <div class="space-y-3 text-sm"><div class="flex justify-between pb-2 border-b"><span>07:00 ~ 08:20 기상 및 방 정리</span></div></div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-amber-600 w-32">09:00 ~ 09:50</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('osulloc')">오설록 뮤지엄 🍵 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-amber-600 w-32">10:00 ~ 11:10</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('shinhwa')">신화테마파크 🎢 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between pb-2 border-b border-slate-100"><span class="font-semibold text-amber-600 w-32">11:45 ~ 12:35</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('neulbom')">중식 (제주늘봄) 🍲 (클릭)</span></div>
+                            <div class="flex flex-col sm:flex-row justify-between"><span class="font-semibold text-amber-600 w-32">12:55 ~ 귀가</span><span class="cursor-pointer text-indigo-600 underline font-medium" onclick="openModal('returnflight')">제주공항 출발 및 안전 귀가 ✈️ (클릭)</span></div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -316,12 +344,40 @@
             <!-- 3. 준비물 체크리스트 탭 -->
             <section id="tab-checklist" class="tab-content hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
-                    <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-clipboard-check text-blue-600 mr-2"></i> 교육여행 필수 준비물 체크리스트</h2>
-                    <p class="text-xs text-slate-500 mb-6">체크박스를 클릭하면 브라우저에 자동 저장됩니다.</p>
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center">
+                        <i class="fa-solid fa-clipboard-check text-blue-600 mr-2"></i> 교육여행 필수 준비물 체크리스트
+                    </h2>
+                    <p class="text-xs text-slate-500 mb-6">체크박스를 클릭하면 브라우저에 자동 저장되어 완료 여부를 확인할 수 있습니다.</p>
+                    
                     <div class="space-y-3">
-                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"><span>단정한 복장 및 학교 규정 의류</span></label>
-                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"><span>발이 편안한 운동화</span></label>
-                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border"><input type="checkbox" class="w-5 h-5 text-blue-600 rounded"><span>개인 상비약 및 보조 배터리</span></label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-100 transition">
+                            <input type="checkbox" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <span class="text-sm font-medium">단정한 복장 및 학교 규정에 맞는 의류 (체육복 등)</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-100 transition">
+                            <input type="checkbox" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <span class="text-sm font-medium">발이 편안한 운동화 (많이 걸으므로 필수!)</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-100 transition">
+                            <input type="checkbox" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <span class="text-sm font-medium">개인 상비약 (멀미약, 개인 복용 의약품 등)</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-100 transition">
+                            <input type="checkbox" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <span class="text-sm font-medium">필기구 및 교육여행 안내 책자</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-100 transition">
+                            <input type="checkbox" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <span class="text-sm font-medium">개인 용돈 및 보조 배터리</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-100 transition">
+                            <input type="checkbox" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <span class="text-sm font-medium">우산 또는 우의 (기상 변화 대비)</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-100 transition">
+                            <input type="checkbox" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <span class="text-sm font-medium">세면도구 및 여벌 옷</span>
+                        </label>
                     </div>
                 </div>
             </section>
@@ -330,18 +386,21 @@
             <section id="tab-memo" class="tab-content hidden space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 space-y-6">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800 mb-1 flex items-center"><i class="fa-solid fa-comments text-blue-600 mr-2"></i> 친구들과 실시간 공유 메모장</h2>
-                        <p class="text-xs text-slate-500">아래 보안 인증(reCAPTCHA)을 완료해야 메모를 등록할 수 있습니다.</p>
+                        <h2 class="text-xl font-bold text-slate-800 mb-1 flex items-center">
+                            <i class="fa-solid fa-comments text-blue-600 mr-2"></i> 친구들과 실시간 공유 메모장
+                        </h2>
+                        <p class="text-xs text-slate-500">아래 보안 인증(reCAPTCHA) 체크를 완료해야 메모를 등록할 수 있습니다!</p>
                     </div>
 
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-4">
+                    <!-- 메모 작성 입력 폼 -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">작성자 이름 / 닉네임</label>
-                            <input type="text" id="memo-author" placeholder="예: 6학년 1반 홍길동" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 text-sm bg-white">
+                            <input type="text" id="memo-author" placeholder="예: 6학년 1반 홍길동" class="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">메모 내용</label>
-                            <textarea id="memo-content" rows="3" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 text-sm bg-white" placeholder="친구들에게 남기고 싶은 말을 적어주세요!"></textarea>
+                            <textarea id="memo-content" rows="3" class="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white" placeholder="친구들에게 남기고 싶은 말을 적어주세요!"></textarea>
                         </div>
                         
                         <!-- 구글 공식 reCAPTCHA v2 위젯 (새로운 사이트 키 적용) -->
@@ -350,14 +409,17 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <button onclick="submitSharedMemo()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-sm transition flex items-center">
+                            <button onclick="submitSharedMemo()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition flex items-center">
                                 <i class="fa-solid fa-paper-plane mr-2"></i> 메모 등록하기
                             </button>
                         </div>
                     </div>
 
+                    <!-- 실시간 공유된 메모 리스트 -->
                     <div class="space-y-3">
-                        <h3 class="font-bold text-sm text-slate-700 flex items-center"><i class="fa-solid fa-stream text-blue-600 mr-1.5"></i> 친구들의 실시간 메모 피드</h3>
+                        <h3 class="font-bold text-sm text-slate-700 flex items-center">
+                            <i class="fa-solid fa-stream text-blue-600 mr-1.5"></i> 친구들의 실시간 메모 피드
+                        </h3>
                         <div id="shared-memo-list" class="space-y-3 max-h-96 overflow-y-auto pr-1">
                             <div class="text-center py-6 text-slate-400 text-xs">불러오는 중...</div>
                         </div>
@@ -368,38 +430,55 @@
             <!-- 5. 추천 채널 및 바로가기 탭 -->
             <section id="tab-links" class="tab-content hidden space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
-                    <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center"><i class="fa-solid fa-compass text-blue-600 mr-2"></i> 추천 채널 및 공식 링크 바로가기</h2>
+                    <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fa-solid fa-compass text-blue-600 mr-2"></i> 추천 채널 및 공식 링크 바로가기
+                    </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         <a href="https://youtube.com/@경준tv" target="_blank" class="flex flex-col items-center justify-center p-8 bg-red-50 hover:bg-red-100 border border-red-200 rounded-2xl transition group shadow-sm">
-                            <div class="w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition"><i class="fa-brands fa-youtube"></i></div>
+                            <div class="w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl mb-4 shadow-md group-hover:scale-110 transition">
+                                <i class="fa-brands fa-youtube"></i>
+                            </div>
                             <h3 class="font-bold text-slate-800 text-lg">경준tv</h3>
+                            <p class="text-xs text-slate-500 mt-1">유튜브 채널 바로가기</p>
                         </a>
                         <a href="https://youtube.com/@geko_snake" target="_blank" class="flex flex-col items-center justify-center p-8 bg-red-50 hover:bg-red-100 border border-red-200 rounded-2xl transition group shadow-sm">
-                            <div class="w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition"><i class="fa-brands fa-youtube"></i></div>
+                            <div class="w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl mb-4 shadow-md group-hover:scale-110 transition">
+                                <i class="fa-brands fa-youtube"></i>
+                            </div>
                             <h3 class="font-bold text-slate-800 text-lg">게코뱀</h3>
+                            <p class="text-xs text-slate-500 mt-1">유튜브 채널 바로가기</p>
                         </a>
                         <a href="https://gekojoon.com" target="_blank" class="flex flex-col items-center justify-center p-8 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl transition group shadow-sm">
-                            <div class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition"><i class="fa-solid fa-globe"></i></div>
+                            <div class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl mb-4 shadow-md group-hover:scale-110 transition">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
                             <h3 class="font-bold text-slate-800 text-lg">게코준</h3>
+                            <p class="text-xs text-slate-500 mt-1">공식 웹사이트 바로가기</p>
                         </a>
                     </div>
                 </div>
             </section>
+
         </main>
 
-        <!-- 이미지 및 상세 특징 모달 팝업 -->
+        <!-- 이미지 및 상세 특징 모달 팝업 (멀티 이미지 지원) -->
         <div id="detail-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border">
+            <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
                 <div class="bg-blue-600 text-white p-5 flex justify-between items-center">
                     <h3 id="modal-title" class="font-bold text-lg">장소 이름</h3>
-                    <button onclick="closeModal()" class="text-white text-2xl font-bold">&times;</button>
+                    <button onclick="closeModal()" class="text-white hover:text-slate-200 text-2xl font-bold leading-none">&times;</button>
                 </div>
                 <div class="p-6 space-y-4">
                     <div id="modal-image-container" class="space-y-2"></div>
-                    <p id="modal-desc" class="text-slate-600 text-sm leading-relaxed"></p>
+                    <div>
+                        <h4 class="font-semibold text-slate-700 text-sm mb-1.5 flex items-center">
+                            <i class="fa-solid fa-circle-info text-blue-600 mr-1.5"></i> 상세 특징 및 안내
+                        </h4>
+                        <p id="modal-desc" class="text-slate-600 text-sm leading-relaxed">설명이 들어갑니다.</p>
+                    </div>
                 </div>
-                <div class="bg-slate-50 px-6 py-4 flex justify-end">
-                    <button onclick="closeModal()" class="bg-slate-200 hover:bg-slate-300 px-5 py-2 rounded-xl text-sm font-semibold">확인</button>
+                <div class="bg-slate-50 px-6 py-4 flex justify-end border-t border-slate-100">
+                    <button onclick="closeModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2 rounded-xl text-sm font-semibold transition">확인</button>
                 </div>
             </div>
         </div>
@@ -429,14 +508,13 @@
         // 관리자 라우팅 감지 (오직 /joon 경로로 접속 시에만 활성화)
         window.addEventListener('DOMContentLoaded', () => {
             const path = window.location.pathname;
-            // /joon이 포함된 경로로 접속한 경우에만 관리자 화면 오픈
             if (path.includes('/joon')) {
                 document.getElementById('admin-view').classList.remove('hidden');
                 document.getElementById('user-view').classList.add('hidden');
             }
         });
 
-        // 관리자 비밀번호 확인 함수 (비밀번호: kyungjoon2026)
+        // 관리자 비밀번호 확인 함수 (기본 비밀번호: kyungjoon2026)
         function checkAdminPassword() {
             const pw = document.getElementById('admin-pw').value;
             if (pw === 'kyungjoon2026') {
@@ -459,6 +537,7 @@
                 el.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
                 el.classList.add('hover:bg-slate-100');
             });
+
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             const activeBtn = document.getElementById('btn-' + tabId);
             activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
@@ -471,59 +550,70 @@
             document.querySelectorAll('.day-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.day-tab').forEach(el => {
                 el.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
-                el.classList.add('bg-white', 'text-slate-600', 'border');
+                el.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200', 'hover:bg-slate-100');
             });
+
             document.getElementById('day-panel-' + dayNum).classList.remove('hidden');
-            document.getElementById('day-btn-' + dayNum).classList.add('bg-blue-600', 'text-white', 'shadow-md');
+            const activeDayBtn = document.getElementById('day-btn-' + dayNum);
+            activeDayBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+            activeDayBtn.classList.remove('bg-white', 'text-slate-600', 'border', 'hover:bg-slate-100');
         }
 
         // 장소 데이터베이스
         const infoDatabase = {
-            airport1: { title: "김포공항 출발 준비", image: "IMG_2.jpg", desc: "학교 집합 후 김포공항으로 이동하여 제주행 비행기 탑승 준비를 합니다." },
-            airport2: { title: "제주국제공항", image: "IMG_3.jpg", desc: "제주국제공항에 도착하여 본격적인 교육여행 일정이 시작됩니다." },
-            buffet: { title: "제주 칠성뷔페", image: "IMG_4.jpg", desc: "다양하고 맛있는 요리가 가득한 뷔페에서 든든하게 점심 식사를 즐깁니다." },
-            hallym: { title: "한림공원", image: "IMG_5.jpeg", desc: "아열대 식물원과 수석전시관이 있는 제주의 명품 테마 공원입니다." },
-            themapark: { title: "더마파크", image: "IMG_6.png", desc: "역동적인 야외 기마 공연을 관람할 수 있는 테마파크입니다." },
-            pork: { title: "숙성돈가", image: "IMG_7.webp", desc: "육즙 가득한 제주산 돼지고기 숯불구이 만찬입니다." },
-            cheonjiyeon: { title: "천지연 폭포", image: "IMG_8.jpg", desc: "시원한 물줄기와 아름다운 야경이 어우러지는 명소입니다." },
-            hotel: { title: "서머셋 성화정", image: "IMG_18.jpg", desc: "편안하고 아늑한 숙소에서 휴식을 취합니다." },
-            breakfast: { title: "호텔 조식", image: "IMG_18.jpg", desc: "상쾌한 아침 조식을 먹고 활기차게 일정을 시작합니다." },
-            railbike: { title: "제주 레일바이크", image: "IMG_10.webp", desc: "초원 풍경 속 철길을 달리는 액티비티입니다." },
-            seongsan: { title: "성산일출봉", image: "IMG_11.jpg", desc: "유네스코 세계자연유산의 웅장한 분화구와 절경입니다." },
-            phoenix: { title: "휘닉스 제주 코지", image: "IMG_12.jpg", desc: "얼큰하고 맛있는 김치부대찌개 점심 식사입니다." },
-            folkvillage: { title: "제주 민속촌", image: "IMG_13.jpg", desc: "옛 제주의 초가집과 전통 문화를 체험합니다." },
-            alivemuseum: { title: "박물관은 살아있다", image: "IMG_14.webp", desc: "착시아트와 런닝맨 체험을 동시에 즐깁니다." },
-            dombegogi: { title: "전원일기 돔베고기", image: ["IMG_15.webp", "IMG_16.jpeg"], desc: "담백한 돔베고기와 신선한 쌈밥 만찬입니다." },
-            convenience: { title: "편의점 이용", image: "IMG_17.jpg", desc: "숙소 복귀 후 필요한 물품을 구매합니다." },
-            osulloc: { title: "오설록 뮤지엄", image: "IMG_19.jpg", desc: "푸른 녹차밭과 싱그러운 자연 속 찻집입니다." },
-            shinhwa: { title: "신화테마파크", image: ["IMG_20.webp", "IMG_21.jpg"], desc: "스릴 넘치는 놀이기구가 가득한 테마파크입니다." },
-            neulbom: { title: "제주늘봄", image: "IMG_22.jpeg", desc: "소불고기전골로 든든한 점심 식사를 합니다." },
-            returnflight: { title: "제주공항 귀가", image: "IMG_23.jpg", desc: "안전하게 비행기에 탑승하여 학교로 귀가합니다." }
+            airport1: { title: "김포공항 출발 준비", image: "IMG_2.jpg", desc: "학교 집합 후 김포공항으로 이동하여 친구들과 인솔 선생님의 안내에 따라 안전하고 설레는 제주행 비행기 탑승 준비를 합니다." },
+            airport2: { title: "제주국제공항", image: "IMG_3.jpg", desc: "푸른 바다 위를 날아 제주국제공항에 도착! 본격적인 제주도 교육여행의 일정이 시작되는 설레는 장소입니다." },
+            buffet: { title: "제주 칠성뷔페 (중식)", image: "IMG_4.jpg", desc: "다양하고 맛있는 요리가 가득 준비된 칠성뷔페에서 친구들과 함께 든든하게 점심 식사를 즐깁니다." },
+            hallym: { title: "한림공원", image: "IMG_5.jpeg", desc: "아열대 식물원, 신비로운 수석전시관, 아기자기한 연못 등이 조화롭게 어우러진 제주의 대표적인 명품 테마 공원입니다." },
+            themapark: { title: "더마파크 (공연 관람)", image: "IMG_6.png", desc: "광활한 야외 공연장에서 말을 탄 배우들이 펼치는 웅장하고 역동적인 기마 공연(광개토태왕 등)을 관람합니다." },
+            pork: { title: "숙성돈가 (제주 돼지구이 석식)", image: "IMG_7.webp", desc: "육즙이 가득하고 고소한 제주산 돼지고기를 숯불에 맛있게 구워 먹는 최고의 저녁 만찬 시간입니다." },
+            cheonjiyeon: { title: "천지연 폭포", image: "IMG_8.jpg", desc: "하늘과 땅이 만나서 이뤄진 연못이라는 의미를 가진 서귀포의 명소로, 시원한 물줄기와 아름다운 야경이 일품입니다." },
+            hotel: { title: "숙소 (서머셋 성화정)", image: "IMG_18.jpg", desc: "편안하고 아늑한 서머셋 성화정 숙소에 도착하여 객실을 배정받고, 짐 정리 및 휴식을 취하며 하루를 마무리합니다." },
+            breakfast: { title: "호텔 조식 (서머셋 성화정)", image: "IMG_18.jpg", desc: "상쾌한 아침 공기와 함께 서머셋 성화정에서 든든한 조식을 먹고 활기차게 2일차 일정을 시작합니다." },
+            railbike: { title: "제주 레일바이크", image: "IMG_10.webp", desc: "용눈이오름 인근의 아름다운 초원 풍경 속에서 철길을 따라 페달을 굴리며 제주의 자연을 온몸으로 만끽하는 액티비티입니다." },
+            seongsan: { title: "성산일출봉 (세계문화유산)", image: "IMG_11.jpg", desc: "바다 위에 거대한 성곽처럼 솟아오른 유네스코 세계자연유산으로, 정상에서 바라보는 탁 트인 풍경이 압권입니다." },
+            phoenix: { title: "휘닉스 제주 코지 (중식)", image: "IMG_12.jpg", desc: "휘닉스 제주 내 식당에서 얼큰하고 맛있는 김치부대찌개로 점심 식사를 하며 에너지를 충전합니다." },
+            folkvillage: { title: "제주 민속촌", image: "IMG_13.jpg", desc: "실제 제주 전통 초가집과 옛 생활 문화를 그대로 보존하여 조상들의 지혜와 삶의 자취를 생생하게 체험하는 곳입니다." },
+            alivemuseum: { title: "박물관은 살아있다 & 런닝맨", image: "IMG_14.webp", desc: "오감을 자극하는 환상적인 트릭아트 포토존과 실내에서 미션을 수행하는 신나는 '런닝맨' 어트랙션을 함께 즐깁니다." },
+            dombegogi: { title: "전원일기 돔베고기 쌈밥 (석식)", image: ["IMG_15.webp", "IMG_16.jpeg"], desc: "부드럽고 담백한 제주 전통 돔베고기와 신선한 쌈채소가 어우러진 든든하고 맛있는 저녁 식사입니다." },
+            convenience: { title: "편의점 이용", image: "IMG_17.jpg", desc: "숙소 복귀 후 필요한 간식과 물품을 구매하며 친구들과 즐거운 추억을 쌓는 시간입니다." },
+            osulloc: { title: "오설록 뮤지엄", image: "IMG_19.jpg", desc: "끝없이 펼쳐진 푸른 녹차밭과 싱그러운 자연 속에서 차 문화를 배우고 달콤한 디저트를 즐길 수 있는 명소입니다." },
+            shinhwa: { title: "신화테마파크", image: ["IMG_20.webp", "IMG_21.jpg"], desc: "다양한 캐릭터와 스릴 넘치는 놀이기구가 가득하여 친구들과 잊지 못할 즐거운 추억을 만드는 테마파크입니다." },
+            neulbom: { title: "제주늘봄 (중식)", image: "IMG_22.jpeg", desc: "맛있는 소불고기전골을 함께 나누어 먹으며 즐겁고 든든하게 점심 식사를 합니다." },
+            returnflight: { title: "제주공항 출발 및 안전 귀가", image: "IMG_23.jpg", desc: "3일간의 소중한 제주도 교육여행 추억을 가슴에 품고, 비행기에 탑승하여 안전하게 학교로 귀가합니다." }
         };
 
+        // 모달 열기 함수
         function openModal(key) {
             const data = infoDatabase[key];
             if (!data) return;
+
             document.getElementById('modal-title').innerText = data.title;
             document.getElementById('modal-desc').innerText = data.desc;
+            
             const imgContainer = document.getElementById('modal-image-container');
             imgContainer.innerHTML = '';
+
             if (Array.isArray(data.image)) {
                 let html = '<div class="grid grid-cols-2 gap-2">';
-                data.image.forEach(img => { html += `<div class="h-52 rounded-xl overflow-hidden"><img src="${img}" class="w-full h-full object-cover"></div>`; });
+                data.image.forEach(img => {
+                    html += `<div class="h-52 rounded-xl overflow-hidden bg-slate-100 shadow-inner"><img src="${img}" class="w-full h-full object-cover"></div>`;
+                });
                 html += '</div>';
                 imgContainer.innerHTML = html;
             } else {
-                imgContainer.innerHTML = `<div class="h-64 rounded-xl overflow-hidden"><img src="${data.image}" class="w-full h-full object-cover"></div>`;
+                imgContainer.innerHTML = `<div class="h-64 rounded-xl overflow-hidden bg-slate-100 shadow-inner"><img src="${data.image}" class="w-full h-full object-cover"></div>`;
             }
+
             document.getElementById('detail-modal').classList.remove('hidden');
         }
 
+        // 모달 닫기 함수
         function closeModal() {
             document.getElementById('detail-modal').classList.add('hidden');
         }
 
-        // 파이어베이스 실시간 공유 메모장 및 IP 수집
+        // 파이어베이스 실시간 공유 메모장 로직
         window.addEventListener('firebase-ready', () => {
             const memoListEl = document.getElementById('shared-memo-list');
             const q = window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc"));
@@ -548,14 +638,18 @@
                     });
                 }
                 memoListEl.innerHTML = html;
+            }, (error) => {
+                console.error("Firestore Error:", error);
+                memoListEl.innerHTML = `<p class="text-xs text-red-500 text-center py-4">메모를 불러오는 중 오류가 발생했습니다.</p>`;
             });
         });
 
+        // HTML 특수문자 이스케이프
         function escapeHtml(str) {
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // 메모 등록 (reCAPTCHA 체크 필수 및 IP 차단 확인)
+        // 공유 메모 등록 (reCAPTCHA 인증 검사 및 IP 차단 확인)
         async function submitSharedMemo() {
             if (!isRecaptchaVerified) {
                 alert('⚠️ 보안 인증(로봇이 아닙니다) 체크박스를 반드시 완료해주세요!');
@@ -564,6 +658,7 @@
 
             const authorInput = document.getElementById('memo-author');
             const contentInput = document.getElementById('memo-content');
+            
             const author = authorInput.value.trim() || '익명 친구';
             const content = contentInput.value.trim();
 
@@ -607,14 +702,13 @@
                 if (typeof grecaptcha !== 'undefined') grecaptcha.reset();
                 alert('메모가 성공적으로 등록되었습니다! 🚀');
             } catch (e) {
-                console.error(e);
-                alert('메모 등록 중 오류가 발생했습니다.');
+                console.error("Error adding document: ", e);
+                alert('메모 저장 중 오류가 발생했습니다.');
             }
         }
 
-        // 관리자 데이터 로드 (IP 목록 및 메모 수정/삭제 관리)
+        // 관리자 데이터 로드 (IP 관리 및 메모 수정/삭제)
         async function loadAdminData() {
-            // 메모 관리 로드
             const memoSnap = await window.getDocs(window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc")));
             let memoHtml = "";
             memoSnap.forEach((d) => {
@@ -635,7 +729,6 @@
             });
             document.getElementById('admin-memo-list').innerHTML = memoHtml || '<p class="text-xs text-slate-500">메모가 없습니다.</p>';
 
-            // IP 목록 로드
             const blockedSnap = await window.getDocs(window.collection(window.db, "blocked_ips"));
             const blockedIps = new Set();
             blockedSnap.forEach(d => blockedIps.add(d.data().ip));
@@ -694,129 +787,6 @@
             await window.deleteDoc(window.doc(window.db, "blocked_ips", ip.replace(/\./g, '_')));
             alert(`IP(${ip}) 차단이 해제되었습니다.`);
             loadAdminData();
-        }
-    </script>
-</body>
-</html>
-```eof
-
-이제 새롭게 변경된 reCAPTCHA 키가 적용되었으며, 오직 주소창에 `/joon`이 포함된 경우(`[causchool.com/joon](https://causchool.com/joon)` 등)에만 관리자 대시보드 화면이 작동합니다!요청하신 변경 사항(새로운 reCAPTCHA 키 적용 및 `/joon` 경로 관리자 접속 제한)을 반영한 전체 HTML 코드 템플릿입니다. 
-
-> **참고:** 이전 전체 코드를 직접 확인할 수 없어, 요청하신 기능이 깔끔하게 동작하도록 구성한 표준 웹페이지 구조로 작성했습니다. 클라이언트 측 HTML에는 **사이트 키**를 적용하고, **비밀키 (`6LeI8LwtAAAAAACwoH78sDGtdHh15npUnZLLpmrQ`)**는 보안을 위해 프론트엔드 코드에 노출하지 말고 서버(Cloudflare Worker 등) 측 검증 로직에서 사용해야 안전합니다.
-
-```html
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웹사이트</title>
-    <!-- Google reCAPTCHA 스크립트 -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-        }
-        .hidden {
-            display: none !important;
-        }
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .g-recaptcha {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #4f46e5;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        button:hover {
-            background-color: #4338ca;
-        }
-        .admin-badge {
-            background-color: #fee2e2;
-            color: #991b1b;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 14px;
-            display: inline-block;
-            margin-bottom: 15px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="card">
-        <!-- 일반 사용자 영역 -->
-        <div id="user-view">
-            <h2>인증 및 로그인</h2>
-            <form id="verify-form" onsubmit="handleSubmit(event)">
-                <!-- 전달해주신 reCAPTCHA 사이트 키 적용 -->
-                <div class="g-recaptcha" data-sitekey="6LeI8LwtAAAAAP_u1cNaZEfnY-cwdHd99lgQbqhv"></div>
-                <button type="submit">확인</button>
-            </form>
-        </div>
-
-        <!-- 관리자 전용 영역 (/joon 접속 시에만 표시) -->
-        <div id="admin-view" class="hidden">
-            <span class="admin-badge">ADMIN ACCESS</span>
-            <h2>관리자 대시보드</h2>
-            <p>오직 /joon 경로로 접속한 관리자만 볼 수 있는 페이지입니다.</p>
-            <!-- 관리자용 기능이나 메뉴를 여기에 작성하세요 -->
-        </div>
-    </div>
-
-    <script>
-        // 페이지가 로드될 때 URL 경로를 확인하여 관리자 여부 판별
-        window.addEventListener('DOMContentLoaded', () => {
-            const currentPath = window.location.pathname;
-            const userView = document.getElementById('user-view');
-            const adminView = document.getElementById('admin-view');
-
-            // 오직 '/joon' 경로일 때만 관리자 화면을 보여줌
-            if (currentPath === '/joon') {
-                userView.classList.add('hidden');
-                adminView.classList.remove('hidden');
-            }
-        });
-
-        // 폼 제출 시 reCAPTCHA 검증 처리 함수
-        function handleSubmit(event) {
-            event.preventDefault();
-            const response = grecaptcha.getResponse();
-
-            if (response.length === 0) {
-                alert('로봇이 아님을 증명해주세요 (reCAPTCHA 체크).');
-                return;
-            }
-
-            // TODO: 백엔드(또는 Cloudflare Worker)로 reCAPTCHA 응답 토큰 전송 후 검증 로직 구현
-            alert('인증이 완료되었습니다!');
         }
     </script>
 </body>
