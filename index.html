@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 아이콘 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 구글 reCAPTCHA v2 스크립트 -->
+    <!-- 구글 공식 reCAPTCHA v2 스크립트 -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -70,11 +70,11 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- 관리자 패널 레이어 (URL에 /admin 이나 #admin 포함 시 활성화) -->
+    <!-- 관리자 패널 레이어 (오직 /joon 경로로 접속 시에만 활성화) -->
     <div id="admin-view" class="hidden fixed inset-0 bg-slate-900 z-50 overflow-y-auto text-white p-6">
         <div class="max-w-4xl mx-auto space-y-6">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                <h1 class="text-2xl font-black flex items-center"><i class="fa-solid fa-user-shield text-blue-500 mr-3"></i> 제주여행 관리자 센터 (/admin)</h1>
+                <h1 class="text-2xl font-black flex items-center"><i class="fa-solid fa-user-shield text-blue-500 mr-3"></i> 제주여행 관리자 센터 (/joon)</h1>
                 <button onclick="leaveAdmin()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition">사이트로 돌아가기</button>
             </div>
 
@@ -344,9 +344,9 @@
                             <textarea id="memo-content" rows="3" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 text-sm bg-white" placeholder="친구들에게 남기고 싶은 말을 적어주세요!"></textarea>
                         </div>
                         
-                        <!-- 구글 공식 reCAPTCHA v2 위젯 -->
+                        <!-- 구글 공식 reCAPTCHA v2 위젯 (새로운 사이트 키 적용) -->
                         <div class="flex justify-center py-2">
-                            <div class="g-recaptcha" data-sitekey="6LdIPbQtAAAAAGlyzxeZpzV0lPILL3oNminlN_Tw" data-callback="memoVerifyCallback" data-expired-callback="memoExpiredCallback"></div>
+                            <div class="g-recaptcha" data-sitekey="6LeI8LwtAAAAAP_u1cNaZEfnY-cwdHd99lgQbqhv" data-callback="memoVerifyCallback" data-expired-callback="memoExpiredCallback"></div>
                         </div>
 
                         <div class="flex justify-end">
@@ -426,17 +426,17 @@
             isRecaptchaVerified = false;
         }
 
-        // 관리자 라우팅 감지 (/admin 또는 #admin)
+        // 관리자 라우팅 감지 (오직 /joon 경로로 접속 시에만 활성화)
         window.addEventListener('DOMContentLoaded', () => {
             const path = window.location.pathname;
-            const hash = window.location.hash;
-            if (path.includes('admin') || hash === '#admin') {
+            // /joon이 포함된 경로로 접속한 경우에만 관리자 화면 오픈
+            if (path.includes('/joon')) {
                 document.getElementById('admin-view').classList.remove('hidden');
                 document.getElementById('user-view').classList.add('hidden');
             }
         });
 
-        // 관리자 비밀번호 확인 함수 (기본 비밀번호: kyungjoon2026)
+        // 관리자 비밀번호 확인 함수 (비밀번호: kyungjoon2026)
         function checkAdminPassword() {
             const pw = document.getElementById('admin-pw').value;
             if (pw === 'kyungjoon2026') {
@@ -449,7 +449,6 @@
         }
 
         function leaveAdmin() {
-            window.location.hash = '';
             window.location.pathname = '/';
         }
 
@@ -636,7 +635,7 @@
             });
             document.getElementById('admin-memo-list').innerHTML = memoHtml || '<p class="text-xs text-slate-500">메모가 없습니다.</p>';
 
-            // IP 목록 로드 (메모에서 수집된 IP + 차단 목록)
+            // IP 목록 로드
             const blockedSnap = await window.getDocs(window.collection(window.db, "blocked_ips"));
             const blockedIps = new Set();
             blockedSnap.forEach(d => blockedIps.add(d.data().ip));
@@ -695,6 +694,129 @@
             await window.deleteDoc(window.doc(window.db, "blocked_ips", ip.replace(/\./g, '_')));
             alert(`IP(${ip}) 차단이 해제되었습니다.`);
             loadAdminData();
+        }
+    </script>
+</body>
+</html>
+```eof
+
+이제 새롭게 변경된 reCAPTCHA 키가 적용되었으며, 오직 주소창에 `/joon`이 포함된 경우(`[causchool.com/joon](https://causchool.com/joon)` 등)에만 관리자 대시보드 화면이 작동합니다!요청하신 변경 사항(새로운 reCAPTCHA 키 적용 및 `/joon` 경로 관리자 접속 제한)을 반영한 전체 HTML 코드 템플릿입니다. 
+
+> **참고:** 이전 전체 코드를 직접 확인할 수 없어, 요청하신 기능이 깔끔하게 동작하도록 구성한 표준 웹페이지 구조로 작성했습니다. 클라이언트 측 HTML에는 **사이트 키**를 적용하고, **비밀키 (`6LeI8LwtAAAAAACwoH78sDGtdHh15npUnZLLpmrQ`)**는 보안을 위해 프론트엔드 코드에 노출하지 말고 서버(Cloudflare Worker 등) 측 검증 로직에서 사용해야 안전합니다.
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹사이트</title>
+    <!-- Google reCAPTCHA 스크립트 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .hidden {
+            display: none !important;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .g-recaptcha {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #4338ca;
+        }
+        .admin-badge {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <!-- 일반 사용자 영역 -->
+        <div id="user-view">
+            <h2>인증 및 로그인</h2>
+            <form id="verify-form" onsubmit="handleSubmit(event)">
+                <!-- 전달해주신 reCAPTCHA 사이트 키 적용 -->
+                <div class="g-recaptcha" data-sitekey="6LeI8LwtAAAAAP_u1cNaZEfnY-cwdHd99lgQbqhv"></div>
+                <button type="submit">확인</button>
+            </form>
+        </div>
+
+        <!-- 관리자 전용 영역 (/joon 접속 시에만 표시) -->
+        <div id="admin-view" class="hidden">
+            <span class="admin-badge">ADMIN ACCESS</span>
+            <h2>관리자 대시보드</h2>
+            <p>오직 /joon 경로로 접속한 관리자만 볼 수 있는 페이지입니다.</p>
+            <!-- 관리자용 기능이나 메뉴를 여기에 작성하세요 -->
+        </div>
+    </div>
+
+    <script>
+        // 페이지가 로드될 때 URL 경로를 확인하여 관리자 여부 판별
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            const userView = document.getElementById('user-view');
+            const adminView = document.getElementById('admin-view');
+
+            // 오직 '/joon' 경로일 때만 관리자 화면을 보여줌
+            if (currentPath === '/joon') {
+                userView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+            }
+        });
+
+        // 폼 제출 시 reCAPTCHA 검증 처리 함수
+        function handleSubmit(event) {
+            event.preventDefault();
+            const response = grecaptcha.getResponse();
+
+            if (response.length === 0) {
+                alert('로봇이 아님을 증명해주세요 (reCAPTCHA 체크).');
+                return;
+            }
+
+            // TODO: 백엔드(또는 Cloudflare Worker)로 reCAPTCHA 응답 토큰 전송 후 검증 로직 구현
+            alert('인증이 완료되었습니다!');
         }
     </script>
 </body>
