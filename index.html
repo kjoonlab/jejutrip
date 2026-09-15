@@ -13,6 +13,52 @@
         body { font-family: 'Pretendard', sans-serif; }
         .hero-gradient { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%); }
     </style>
+    <!-- Firebase SDK 및 도메인 보안 스크립트 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // [보안 설정] 오직 kyungjoon.com (및 테스트용 로컬)에서만 작동하도록 차단
+        const hostname = window.location.hostname;
+        if (!hostname.includes("kyungjoon.com") && hostname !== "localhost" && hostname !== "127.0.0.1") {
+            document.body.innerHTML = `
+                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background:#0f172a; color:#f8fafc; font-family:sans-serif; text-align:center; padding:20px;">
+                    <div style="background:#1e293b; padding:40px; border-radius:24px; box-shadow:0 10px 25px rgba(0,0,0,0.3); border:1px solid #334155;">
+                        <h1 style="font-size:24px; color:#ef4444; margin-bottom:12px;"><i class="fa-solid fa-shield-halved"></i> 접근 권한 제한</h1>
+                        <p style="color:#94a3b8; font-size:15px; line-height:1.6;">이 웹사이트는 보안 정책에 따라 오직 공식 도메인인<br><strong style="color:#60a5fa;">kyungjoon.com</strong> 에서만 정상적으로 작동합니다.</p>
+                    </div>
+                </div>
+            `;
+            throw new Error("Unauthorized domain access blocked.");
+        }
+
+        // Firebase 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1i2JDosCgSAKStg6lZfqD8sEkFBPPKyM",
+            authDomain: "code-8edf2.firebaseapp.com",
+            projectId: "code-8edf2",
+            storageBucket: "code-8edf2.firebasestorage.app",
+            messagingSenderId: "874029593317",
+            appId: "1:874029593317:web:11e19d15053dd8aa2b1a0c",
+            measurementId: "G-694C7PL2C4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // 전역으로 함수 연결하여 메모장 기능에서 사용
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.onSnapshot = onSnapshot;
+        window.query = query;
+        window.orderBy = orderBy;
+        window.serverTimestamp = serverTimestamp;
+
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
@@ -49,7 +95,7 @@
                 <i class="fa-solid fa-list-check mr-2"></i>준비물 체크리스트
             </button>
             <button onclick="switchTab('memo')" id="btn-memo" class="tab-btn px-5 py-2.5 rounded-xl hover:bg-slate-100 transition flex items-center whitespace-nowrap">
-                <i class="fa-solid fa-book-open mr-2"></i>여행 메모장
+                <i class="fa-solid fa-book-open mr-2"></i>친구들과 공유 메모장
             </button>
             <button onclick="switchTab('links')" id="btn-links" class="tab-btn px-5 py-2.5 rounded-xl hover:bg-slate-100 transition flex items-center whitespace-nowrap">
                 <i class="fa-solid fa-compass mr-2"></i>추천 채널 & 링크
@@ -451,18 +497,41 @@
             </div>
         </section>
 
-        <!-- 4. 여행 메모장 탭 -->
-        <section id="tab-memo" class="tab-content hidden space-y-4">
-            <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
-                <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center">
-                    <i class="fa-solid fa-pen-to-square text-blue-600 mr-2"></i> 나만의 여행 메모장
-                </h2>
-                <p class="text-xs text-slate-500 mb-4">친구들에게 줄 선물 리스트, 선생님과 약속한 내용, 기억하고 싶은 소중한 생각을 자유롭게 적어보세요. (자동 저장됩니다)</p>
-                <textarea id="memo-textarea" rows="8" class="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm leading-relaxed" placeholder="여기에 메모를 입력하세요..."></textarea>
-                <div class="flex justify-end mt-3">
-                    <button onclick="saveMemoData()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition">
-                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> 메모 저장하기
-                    </button>
+        <!-- 4. 친구들과 공유 메모장 탭 (로그인 불필요, 파이어베이스 실시간 연동) -->
+        <section id="tab-memo" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-1 flex items-center">
+                        <i class="fa-solid fa-comments text-blue-600 mr-2"></i> 친구들과 실시간 공유 메모장
+                    </h2>
+                    <p class="text-xs text-slate-500">로그인 없이 이름과 내용을 입력하면 우리 반 친구들 모두가 볼 수 있는 메모장에 실시간으로 등록됩니다!</p>
+                </div>
+
+                <!-- 메모 작성 입력 폼 -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">작성자 이름 / 닉네임</label>
+                        <input type="text" id="memo-author" placeholder="예: 6학년 1반 홍길동" class="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">메모 내용</label>
+                        <textarea id="memo-content" rows="3" class="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white" placeholder="친구들에게 남기고 싶은 말, 선물 리스트, 함께 놀고 싶은 내용을 적어주세요!"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="submitSharedMemo()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition flex items-center">
+                            <i class="fa-solid fa-paper-plane mr-2"></i> 메모 등록하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 실시간 공유된 메모 리스트 -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-sm text-slate-700 flex items-center">
+                        <i class="fa-solid fa-stream text-blue-600 mr-1.5"></i> 친구들의 실시간 메모 피드
+                    </h3>
+                    <div id="shared-memo-list" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                        <div class="text-center py-6 text-slate-400 text-xs">불러오는 중...</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -514,10 +583,7 @@
                 <button onclick="closeModal()" class="text-white hover:text-slate-200 text-2xl font-bold leading-none">&times;</button>
             </div>
             <div class="p-6 space-y-4">
-                <!-- 이미지 출력 영역 (1장 또는 여러 장 자동 대응) -->
-                <div id="modal-image-container" class="space-y-2">
-                    <!-- JS 동적 주입 -->
-                </div>
+                <div id="modal-image-container" class="space-y-2"></div>
                 <div>
                     <h4 class="font-semibold text-slate-700 text-sm mb-1.5 flex items-center">
                         <i class="fa-solid fa-circle-info text-blue-600 mr-1.5"></i> 상세 특징 및 안내
@@ -531,10 +597,9 @@
         </div>
     </div>
 
-    <!-- 푸터 -->
+    <!-- 푸터 (요청하신 문구 반영) -->
     <footer class="bg-white border-t border-slate-200 mt-16 py-6 text-center text-xs text-slate-400">
-        <p>중앙대학교사범대학부속초등학교 6학년 제주도 교육여행 안내 웹사이트</p>
-        <p class="mt-1">© 2026 Joongang Elementary School. All rights reserved.</p>
+        <p>© 2026 CAU Elementary School. All rights reserved. Made by 경준 & idea by 유찬</p>
     </footer>
 
     <!-- JavaScript 로직 -->
@@ -568,108 +633,28 @@
             activeDayBtn.classList.remove('bg-white', 'text-slate-600', 'border', 'hover:bg-slate-100');
         }
 
-        // 업데이트된 장소 데이터베이스 (요청하신 이미지 매핑 반영)
+        // 장소 데이터베이스 (요청하신 이미지 매핑 반영)
         const infoDatabase = {
-            airport1: {
-                title: "김포공항 출발 준비",
-                image: "IMG_2.jpg",
-                desc: "학교 집합 후 김포공항으로 이동하여 친구들과 인솔 선생님의 안내에 따라 안전하고 설레는 제주행 비행기 탑승 준비를 합니다."
-            },
-            airport2: {
-                title: "제주국제공항",
-                image: "IMG_3.jpg",
-                desc: "푸른 바다 위를 날아 제주국제공항에 도착! 본격적인 제주도 교육여행의 일정이 시작되는 설레는 장소입니다."
-            },
-            buffet: {
-                title: "제주 칠성뷔페 (중식)",
-                image: "IMG_4.jpg",
-                desc: "다양하고 맛있는 요리가 가득 준비된 칠성뷔페에서 친구들과 함께 든든하게 점심 식사를 즐깁니다."
-            },
-            hallym: {
-                title: "한림공원",
-                image: "IMG_5.jpeg",
-                desc: "아열대 식물원, 신비로운 수석전시관, 아기자기한 연못 등이 조화롭게 어우러진 제주의 대표적인 명품 테마 공원입니다."
-            },
-            themapark: {
-                title: "더마파크 (공연 관람)",
-                image: "IMG_6.png",
-                desc: "광활한 야외 공연장에서 말을 탄 배우들이 펼치는 웅장하고 역동적인 기마 공연(광개토태왕 등)을 관람합니다."
-            },
-            pork: {
-                title: "숙성돈가 (제주 돼지구이 석식)",
-                image: "IMG_7.webp",
-                desc: "육즙이 가득하고 고소한 제주산 돼지고기를 숯불에 맛있게 구워 먹는 최고의 저녁 만찬 시간입니다."
-            },
-            cheonjiyeon: {
-                title: "천지연 폭포",
-                image: "IMG_8.jpg",
-                desc: "하늘과 땅이 만나서 이뤄진 연못이라는 의미를 가진 서귀포의 명소로, 시원한 물줄기와 아름다운 야경이 일품입니다."
-            },
-            hotel: {
-                title: "숙소 (서머셋 성화정)",
-                image: "IMG_18.jpg",
-                desc: "편안하고 아늑한 서머셋 성화정 숙소에 도착하여 객실을 배정받고, 짐 정리 및 휴식을 취하며 하루를 마무리합니다."
-            },
-            breakfast: {
-                title: "호텔 조식 (서머셋 성화정)",
-                image: "IMG_18.jpg",
-                desc: "상쾌한 아침 공기와 함께 서머셋 성화정에서 든든한 조식을 먹고 활기차게 2일차 일정을 시작합니다."
-            },
-            railbike: {
-                title: "제주 레일바이크",
-                image: "IMG_10.webp",
-                desc: "용눈이오름 인근의 아름다운 초원 풍경 속에서 철길을 따라 페달을 굴리며 제주의 자연을 온몸으로 만끽하는 액티비티입니다."
-            },
-            seongsan: {
-                title: "성산일출봉 (세계문화유산)",
-                image: "IMG_11.jpg",
-                desc: "바다 위에 거대한 성곽처럼 솟아오른 유네스코 세계자연유산으로, 정상에서 바라보는 탁 트인 풍경이 압권입니다."
-            },
-            phoenix: {
-                title: "휘닉스 제주 코지 (중식)",
-                image: "IMG_12.jpg",
-                desc: "휘닉스 제주 내 식당에서 얼큰하고 맛있는 김치부대찌개로 점심 식사를 하며 에너지를 충전합니다."
-            },
-            folkvillage: {
-                title: "제주 민속촌",
-                image: "IMG_13.jpg",
-                desc: "실제 제주 전통 초가집과 옛 생활 문화를 그대로 보존하여 조상들의 지혜와 삶의 자취를 생생하게 체험하는 곳입니다."
-            },
-            alivemuseum: {
-                title: "박물관은 살아있다 & 런닝맨",
-                image: "IMG_14.webp",
-                desc: "오감을 자극하는 환상적인 트릭아트 포토존과 실내에서 미션을 수행하는 신나는 '런닝맨' 어트랙션을 함께 즐깁니다."
-            },
-            dombegogi: {
-                title: "전원일기 돔베고기 쌈밥 (석식)",
-                image: ["IMG_15.webp", "IMG_16.jpeg"], // IMG_15와 IMG_16 두 장을 함께 표시
-                desc: "부드럽고 담백한 제주 전통 돔베고기와 신선한 쌈채소가 어우러진 든든하고 맛있는 저녁 식사입니다."
-            },
-            convenience: {
-                title: "편의점 이용",
-                image: "IMG_17.jpg",
-                desc: "숙소 복귀 후 필요한 간식과 물품을 구매하며 친구들과 즐거운 추억을 쌓는 시간입니다."
-            },
-            osulloc: {
-                title: "오설록 뮤지엄",
-                image: "IMG_19.jpg",
-                desc: "끝없이 펼쳐진 푸른 녹차밭과 싱그러운 자연 속에서 차 문화를 배우고 달콤한 디저트를 즐길 수 있는 명소입니다."
-            },
-            shinhwa: {
-                title: "신화테마파크",
-                image: ["IMG_20.webp", "IMG_21.jpg"], // IMG_20과 IMG_21 두 장을 함께 표시
-                desc: "다양한 캐릭터와 스릴 넘치는 놀이기구가 가득하여 친구들과 잊지 못할 즐거운 추억을 만드는 테마파크입니다."
-            },
-            neulbom: {
-                title: "제주늘봄 (중식)",
-                image: "IMG_22.jpeg",
-                desc: "맛있는 소불고기전골을 함께 나누어 먹으며 즐겁고 든든하게 점심 식사를 합니다."
-            },
-            returnflight: {
-                title: "제주공항 출발 및 안전 귀가",
-                image: "IMG_23.jpg",
-                desc: "3일간의 소중한 제주도 교육여행 추억을 가슴에 품고, 비행기에 탑승하여 안전하게 학교로 귀가합니다."
-            }
+            airport1: { title: "김포공항 출발 준비", image: "IMG_2.jpg", desc: "학교 집합 후 김포공항으로 이동하여 친구들과 인솔 선생님의 안내에 따라 안전하고 설레는 제주행 비행기 탑승 준비를 합니다." },
+            airport2: { title: "제주국제공항", image: "IMG_3.jpg", desc: "푸른 바다 위를 날아 제주국제공항에 도착! 본격적인 제주도 교육여행의 일정이 시작되는 설레는 장소입니다." },
+            buffet: { title: "제주 칠성뷔페 (중식)", image: "IMG_4.jpg", desc: "다양하고 맛있는 요리가 가득 준비된 칠성뷔페에서 친구들과 함께 든든하게 점심 식사를 즐깁니다." },
+            hallym: { title: "한림공원", image: "IMG_5.jpeg", desc: "아열대 식물원, 신비로운 수석전시관, 아기자기한 연못 등이 조화롭게 어우러진 제주의 대표적인 명품 테마 공원입니다." },
+            themapark: { title: "더마파크 (공연 관람)", image: "IMG_6.png", desc: "광활한 야외 공연장에서 말을 탄 배우들이 펼치는 웅장하고 역동적인 기마 공연(광개토태왕 등)을 관람합니다." },
+            pork: { title: "숙성돈가 (제주 돼지구이 석식)", image: "IMG_7.webp", desc: "육즙이 가득하고 고소한 제주산 돼지고기를 숯불에 맛있게 구워 먹는 최고의 저녁 만찬 시간입니다." },
+            cheonjiyeon: { title: "천지연 폭포", image: "IMG_8.jpg", desc: "하늘과 땅이 만나서 이뤄진 연못이라는 의미를 가진 서귀포의 명소로, 시원한 물줄기와 아름다운 야경이 일품입니다." },
+            hotel: { title: "숙소 (서머셋 성화정)", image: "IMG_18.jpg", desc: "편안하고 아늑한 서머셋 성화정 숙소에 도착하여 객실을 배정받고, 짐 정리 및 휴식을 취하며 하루를 마무리합니다." },
+            breakfast: { title: "호텔 조식 (서머셋 성화정)", image: "IMG_18.jpg", desc: "상쾌한 아침 공기와 함께 서머셋 성화정에서 든든한 조식을 먹고 활기차게 2일차 일정을 시작합니다." },
+            railbike: { title: "제주 레일바이크", image: "IMG_10.webp", desc: "용눈이오름 인근의 아름다운 초원 풍경 속에서 철길을 따라 페달을 굴리며 제주의 자연을 온몸으로 만끽하는 액티비티입니다." },
+            seongsan: { title: "성산일출봉 (세계문화유산)", image: "IMG_11.jpg", desc: "바다 위에 거대한 성곽처럼 솟아오른 유네스코 세계자연유산으로, 정상에서 바라보는 탁 트인 풍경이 압권입니다." },
+            phoenix: { title: "휘닉스 제주 코지 (중식)", image: "IMG_12.jpg", desc: "휘닉스 제주 내 식당에서 얼큰하고 맛있는 김치부대찌개로 점심 식사를 하며 에너지를 충전합니다." },
+            folkvillage: { title: "제주 민속촌", image: "IMG_13.jpg", desc: "실제 제주 전통 초가집과 옛 생활 문화를 그대로 보존하여 조상들의 지혜와 삶의 자취를 생생하게 체험하는 곳입니다." },
+            alivemuseum: { title: "박물관은 살아있다 & 런닝맨", image: "IMG_14.webp", desc: "오감을 자극하는 환상적인 트릭아트 포토존과 실내에서 미션을 수행하는 신나는 '런닝맨' 어트랙션을 함께 즐깁니다." },
+            dombegogi: { title: "전원일기 돔베고기 쌈밥 (석식)", image: ["IMG_15.webp", "IMG_16.jpeg"], desc: "부드럽고 담백한 제주 전통 돔베고기와 신선한 쌈채소가 어우러진 든든하고 맛있는 저녁 식사입니다." },
+            convenience: { title: "편의점 이용", image: "IMG_17.jpg", desc: "숙소 복귀 후 필요한 간식과 물품을 구매하며 친구들과 즐거운 추억을 쌓는 시간입니다." },
+            osulloc: { title: "오설록 뮤지엄", image: "IMG_19.jpg", desc: "끝없이 펼쳐진 푸른 녹차밭과 싱그러운 자연 속에서 차 문화를 배우고 달콤한 디저트를 즐길 수 있는 명소입니다." },
+            shinhwa: { title: "신화테마파크", image: ["IMG_20.webp", "IMG_21.jpg"], desc: "다양한 캐릭터와 스릴 넘치는 놀이기구가 가득하여 친구들과 잊지 못할 즐거운 추억을 만드는 테마파크입니다." },
+            neulbom: { title: "제주늘봄 (중식)", image: "IMG_22.jpeg", desc: "맛있는 소불고기전골을 함께 나누어 먹으며 즐겁고 든든하게 점심 식사를 합니다." },
+            returnflight: { title: "제주공항 출발 및 안전 귀가", image: "IMG_23.jpg", desc: "3일간의 소중한 제주도 교육여행 추억을 가슴에 품고, 비행기에 탑승하여 안전하게 학교로 귀가합니다." }
         };
 
         // 모달 열기 함수 (다중 이미지 지원)
@@ -684,7 +669,6 @@
             imgContainer.innerHTML = '';
 
             if (Array.isArray(data.image)) {
-                // 이미지가 여러 개인 경우 그리드로 배치
                 let html = '<div class="grid grid-cols-2 gap-2">';
                 data.image.forEach(img => {
                     html += `<div class="h-52 rounded-xl overflow-hidden bg-slate-100 shadow-inner"><img src="${img}" class="w-full h-full object-cover"></div>`;
@@ -692,7 +676,6 @@
                 html += '</div>';
                 imgContainer.innerHTML = html;
             } else {
-                // 단일 이미지인 경우
                 imgContainer.innerHTML = `<div class="h-64 rounded-xl overflow-hidden bg-slate-100 shadow-inner"><img src="${data.image}" class="w-full h-full object-cover"></div>`;
             }
 
@@ -704,20 +687,69 @@
             document.getElementById('detail-modal').classList.add('hidden');
         }
 
-        // 메모장 로컬스토리지 저장 및 불러오기
-        const memoTextarea = document.getElementById('memo-textarea');
-        if (localStorage.getItem('jeju_travel_memo')) {
-            memoTextarea.value = localStorage.getItem('jeju_travel_memo');
-        }
-
-        function saveMemoData() {
-            localStorage.setItem('jeju_travel_memo', memoTextarea.value);
-            alert('메모가 안전하게 저장되었습니다! 📝');
-        }
-
-        memoTextarea.addEventListener('input', () => {
-            localStorage.setItem('jeju_travel_memo', memoTextarea.value);
+        // 파이어베이스 실시간 공유 메모장 로직 (로그인 불필요)
+        window.addEventListener('firebase-ready', () => {
+            const memoListEl = document.getElementById('shared-memo-list');
+            const q = window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc"));
+            
+            window.onSnapshot(q, (snapshot) => {
+                let html = "";
+                if(snapshot.empty) {
+                    html = `<p class="text-xs text-slate-400 text-center py-6">아직 작성된 메모가 없습니다. 첫 번째로 메모를 남겨보세요! 📝</p>`;
+                } else {
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const dateStr = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString() : '방금 전';
+                        html += `
+                            <div class="bg-white border border-slate-200 p-4 rounded-xl space-y-1.5 shadow-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-xs text-blue-600"><i class="fa-solid fa-user-circle mr-1"></i>${escapeHtml(data.author || '익명 친구')}</span>
+                                    <span class="text-[10px] text-slate-400">${dateStr}</span>
+                                </div>
+                                <p class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">${escapeHtml(data.content || '')}</p>
+                            </div>
+                        `;
+                    });
+                }
+                memoListEl.innerHTML = html;
+            }, (error) => {
+                console.error("Firestore Error:", error);
+                memoListEl.innerHTML = `<p class="text-xs text-red-500 text-center py-4">메모를 불러오는 중 오류가 발생했습니다. (Firestore Rules를 확인해주세요)</p>`;
+            });
         });
+
+        // HTML 특수문자 이스케이프 (보안 처리)
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // 공유 메모 등록 함수
+        async function submitSharedMemo() {
+            const authorInput = document.getElementById('memo-author');
+            const contentInput = document.getElementById('memo-content');
+            
+            const author = authorInput.value.trim() || '익명 친구';
+            const content = contentInput.value.trim();
+
+            if(!content) {
+                alert('메모 내용을 입력해주세요!');
+                contentInput.focus();
+                return;
+            }
+
+            try {
+                await window.addDoc(window.collection(window.db, "travel_memos"), {
+                    author: author,
+                    content: content,
+                    createdAt: window.serverTimestamp()
+                });
+                contentInput.value = '';
+                alert('메모가 친구들에게 성공적으로 공유되었습니다! 🚀');
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                alert('메모 저장 중 오류가 발생했습니다.');
+            }
+        }
     </script>
 </body>
 </html>
