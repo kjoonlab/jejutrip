@@ -19,7 +19,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // [보안 설정] kyungjoon.com 또는 causchool.com (및 서브도메인, 로컬)에서만 작동하도록 허용
         const hostname = window.location.hostname;
@@ -64,6 +64,7 @@
         window.orderBy = orderBy;
         window.getDocs = getDocs;
         window.setDoc = setDoc;
+        window.serverTimestamp = serverTimestamp;
 
         window.dispatchEvent(new Event('firebase-ready'));
     </script>
@@ -485,7 +486,7 @@
 
         <!-- 푸터 -->
         <footer class="bg-white border-t border-slate-200 mt-16 py-6 text-center text-xs text-slate-400">
-            <p>© 2026 CAU Elementary School. All rights reserved. Made by 경준 & idea by 유찬</p>
+            <p>© 2026 Gekojoon. All rights reserved. Made by 경준 & idea by 유찬</p>
         </footer>
     </div>
 
@@ -651,7 +652,7 @@
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // 공유 메모 등록 (reCAPTCHA 인증 검사 및 IP 차단 확인)
+        // 공유 메모 등록 (안정적인 IP 수집 및 reCAPTCHA 인증 검사)
         async function submitSharedMemo() {
             if (!isRecaptchaVerified) {
                 alert('⚠️ 보안 인증(로봇이 아닙니다) 체크박스를 반드시 완료해주세요!');
@@ -670,13 +671,21 @@
                 return;
             }
 
-            // 사용자 IP 조회
+            // 안정적인 IP 수집 (여러 공인 IP API 백업 적용)
             let userIp = "unknown";
             try {
-                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipRes = await fetch('https://api64.ipify.org?format=json');
                 const ipData = await ipRes.json();
                 userIp = ipData.ip;
-            } catch(e) {}
+            } catch(e1) {
+                try {
+                    const ipRes2 = await fetch('https://ipinfo.io/json');
+                    const ipData2 = await ipRes2.json();
+                    userIp = ipData2.ip;
+                } catch(e2) {
+                    userIp = "127.0.0.1";
+                }
+            }
 
             // 차단된 IP인지 확인
             try {
@@ -793,30 +802,3 @@
     </script>
 </body>
 </html>
-```eof
-
-이제 **`[https://joon.causchool.com/](https://joon.causchool.com/)`**으로 접속하면 자동으로 관리자 인증 및 대시보드 화면이 작동합니다! (메인 사이트로 돌아가기 버튼을 누르면 `[https://causchool.com](https://causchool.com)`으로 이동합니다.)`joon.causchool.com` 주소에서 관리자(admin) 페이지나 기능이 정상적으로 작동하도록 설정하는 방법은 현재 프로젝트의 배포 및 라우팅 방식(Cloudflare Workers, Firebase Hosting, 또는 순수 프론트엔드 라우팅)에 따라 다릅니다. 
-
-주로 사용하는 대표적인 환경별 설정 방법은 다음과 같습니다.
-
-### 1. Cloudflare Workers를 사용하는 경우
-라우터 스크립트에서 `/admin` 경로 또는 특정 조건에 대한 요청을 가로채어 관리자 페이지를 응답하도록 설정할 수 있습니다.
-
-```javascript
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
-
-async function handleRequest(request) {
-  const url = new URL(request.url);
-  
-  // /admin 경로로 접속한 경우
-  if (url.pathname.startsWith('/admin')) {
-    return new Response('<!DOCTYPE html><html><body><h1>Admin Dashboard</h1></body></html>', {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' }
-    });
-  }
-
-  // 기본 요청 처리
-  return fetch(request);
-}
