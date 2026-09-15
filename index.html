@@ -21,7 +21,7 @@
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // [보안 설정] kyungjoon.com 또는 causchool.com (및 테스트용 로컬)에서만 작동하도록 허용
+        // [보안 설정] kyungjoon.com 또는 causchool.com (및 서브도메인, 로컬)에서만 작동하도록 허용
         const hostname = window.location.hostname;
         const isAllowed = hostname.includes("kyungjoon.com") || hostname.includes("causchool.com") || hostname === "localhost" || hostname === "127.0.0.1";
 
@@ -70,12 +70,12 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- 관리자 패널 레이어 (오직 /joon 경로로 접속 시에만 활성화) -->
+    <!-- 관리자 패널 레이어 (joon.causchool.com 서브도메인 또는 /joon 경로 접속 시 활성화) -->
     <div id="admin-view" class="hidden fixed inset-0 bg-slate-900 z-50 overflow-y-auto text-white p-6">
         <div class="max-w-4xl mx-auto space-y-6">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                <h1 class="text-2xl font-black flex items-center"><i class="fa-solid fa-user-shield text-blue-500 mr-3"></i> 제주여행 관리자 센터 (/joon)</h1>
-                <button onclick="leaveAdmin()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition">사이트로 돌아가기</button>
+                <h1 class="text-2xl font-black flex items-center"><i class="fa-solid fa-user-shield text-blue-500 mr-3"></i> 제주여행 관리자 센터 (joon.causchool.com)</h1>
+                <button onclick="leaveAdmin()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition">메인 사이트로 가기</button>
             </div>
 
             <!-- 관리자 로그인 박스 -->
@@ -403,7 +403,7 @@
                             <textarea id="memo-content" rows="3" class="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white" placeholder="친구들에게 남기고 싶은 말을 적어주세요!"></textarea>
                         </div>
                         
-                        <!-- 구글 공식 reCAPTCHA v2 위젯 (새로운 사이트 키 적용) -->
+                        <!-- 구글 공식 reCAPTCHA v2 위젯 -->
                         <div class="flex justify-center py-2">
                             <div class="g-recaptcha" data-sitekey="6LeI8LwtAAAAAP_u1cNaZEfnY-cwdHd99lgQbqhv" data-callback="memoVerifyCallback" data-expired-callback="memoExpiredCallback"></div>
                         </div>
@@ -461,7 +461,7 @@
 
         </main>
 
-        <!-- 이미지 및 상세 특징 모달 팝업 (멀티 이미지 지원) -->
+        <!-- 이미지 및 상세 특징 모달 팝업 -->
         <div id="detail-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
             <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
                 <div class="bg-blue-600 text-white p-5 flex justify-between items-center">
@@ -505,16 +505,18 @@
             isRecaptchaVerified = false;
         }
 
-        // 관리자 라우팅 감지 (오직 /joon 경로로 접속 시에만 활성화)
+        // 관리자 라우팅 감지 (joon.causchool.com 서브도메인 또는 /joon 경로 접속 시 활성화)
         window.addEventListener('DOMContentLoaded', () => {
+            const hostname = window.location.hostname;
             const path = window.location.pathname;
-            if (path.includes('/joon')) {
+            
+            if (hostname.startsWith('joon.') || path.includes('/joon')) {
                 document.getElementById('admin-view').classList.remove('hidden');
                 document.getElementById('user-view').classList.add('hidden');
             }
         });
 
-        // 관리자 비밀번호 확인 함수 (기본 비밀번호: kyungjoon2026)
+        // 관리자 비밀번호 확인 함수 (비밀번호: kyungjoon2026)
         function checkAdminPassword() {
             const pw = document.getElementById('admin-pw').value;
             if (pw === 'kyungjoon2026') {
@@ -527,7 +529,7 @@
         }
 
         function leaveAdmin() {
-            window.location.pathname = '/';
+            window.location.href = 'https://causchool.com';
         }
 
         // 메인 탭 전환 함수
@@ -791,3 +793,30 @@
     </script>
 </body>
 </html>
+```eof
+
+이제 **`[https://joon.causchool.com/](https://joon.causchool.com/)`**으로 접속하면 자동으로 관리자 인증 및 대시보드 화면이 작동합니다! (메인 사이트로 돌아가기 버튼을 누르면 `[https://causchool.com](https://causchool.com)`으로 이동합니다.)`joon.causchool.com` 주소에서 관리자(admin) 페이지나 기능이 정상적으로 작동하도록 설정하는 방법은 현재 프로젝트의 배포 및 라우팅 방식(Cloudflare Workers, Firebase Hosting, 또는 순수 프론트엔드 라우팅)에 따라 다릅니다. 
+
+주로 사용하는 대표적인 환경별 설정 방법은 다음과 같습니다.
+
+### 1. Cloudflare Workers를 사용하는 경우
+라우터 스크립트에서 `/admin` 경로 또는 특정 조건에 대한 요청을 가로채어 관리자 페이지를 응답하도록 설정할 수 있습니다.
+
+```javascript
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+})
+
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  
+  // /admin 경로로 접속한 경우
+  if (url.pathname.startsWith('/admin')) {
+    return new Response('<!DOCTYPE html><html><body><h1>Admin Dashboard</h1></body></html>', {
+      headers: { 'Content-Type': 'text/html; charset=utf-8' }
+    });
+  }
+
+  // 기본 요청 처리
+  return fetch(request);
+}
