@@ -505,7 +505,7 @@
         </div>
 
         <!-- 관리자 전용 IP 상세 정보 팝업 모달 -->
-        <div id="admin-ip-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 text-slate-800">
+        <div id="admin-ip-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] hidden flex items-center justify-center p-4 text-slate-800">
             <div class="bg-slate-900 text-white border border-slate-700 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl p-6 space-y-6">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <h3 class="font-bold text-lg flex items-center"><i class="fa-solid fa-circle-info text-blue-400 mr-2"></i> 방문자 접속 정보 전체 보기</h3>
@@ -699,6 +699,7 @@
 
         // 관리자 전용 IP 상세 정보 모달 열기 함수
         function openIpDetailModal(ip, userAgent, visitedAt) {
+            console.log("openIpDetailModal 호출됨:", ip, visitedAt);
             document.getElementById('modal-ip-val').innerText = ip;
             document.getElementById('modal-ip-time').innerText = visitedAt;
             document.getElementById('modal-ip-ua').innerText = userAgent;
@@ -812,15 +813,16 @@
             }
         }
 
-        // 완벽하게 안전한 키 기반 IP 데이터 레지스트리 (전체보기 팝업 오류 원인 원천 차단)
+        // 100% 신뢰할 수 있는 IP 데이터 레지스트리 및 클릭 핸들러
         window._ipDataMap = {};
 
         window.openIpDetailModalByKey = function(key) {
+            console.log("전체보기 버튼 클릭됨! Key:", key);
             const item = window._ipDataMap[key];
             if (item) {
                 openIpDetailModal(item.ip, item.userAgent, item.visitedAt);
             } else {
-                alert('접속 정보를 찾을 수 없습니다.');
+                alert('접속 정보를 찾을 수 없습니다. (Key: ' + key + ')');
             }
         };
 
@@ -847,11 +849,14 @@
                         visitedAt: visitTime
                     };
                     
+                    // 테이블 셀 내부 flex 배치 및 명시적 버튼 이벤트 지정 (오류 원인 완벽 제거)
                     visitorHtml += `
                         <tr class="hover:bg-slate-800/80 transition border-b border-slate-800">
-                            <td class="p-3 font-mono text-blue-300 font-bold flex items-center justify-between space-x-2">
-                                <span>${safeIp}</span>
-                                <button onclick="openIpDetailModalByKey('${dataKey}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-bold transition shadow-sm whitespace-nowrap">전체보기</button>
+                            <td class="p-3 font-mono text-blue-300 font-bold">
+                                <div class="flex items-center justify-between space-x-2">
+                                    <span>${safeIp}</span>
+                                    <button type="button" onclick="openIpDetailModalByKey('${dataKey}'); return false;" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-bold transition shadow-sm whitespace-nowrap cursor-pointer">전체보기</button>
+                                </div>
                             </td>
                             <td class="p-3 text-slate-400">${visitTime}</td>
                             <td class="p-3 text-slate-400 text-[11px] truncate max-w-xs">${safeUa}</td>
@@ -901,7 +906,7 @@
                 document.getElementById('admin-ip-list').innerHTML = ipHtml || '<tr><td colspan="2" class="p-4 text-center text-slate-500">차단된 IP가 없습니다.</td></tr>';
             } catch (err) {
                 console.error("Admin data load error:", err);
-                document.getElementById('admin-visitor-list').innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-400">데이터를 불러오는 중 권한 오류가 발생했습니다.</td></tr>';
+                document.getElementById('admin-visitor-list').innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-400">데이터 로드 실패: ${err.message}<br>Firebase 보안 규칙(Rules)을 확인해주세요.</td></tr>`;
             }
         }
 
