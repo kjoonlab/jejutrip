@@ -127,7 +127,16 @@
                     </div>
                 </div>
 
-                <!-- 3. IP 차단 관리 섹션 -->
+                <!-- 3. 수신된 방문자 DM 답장 관리 섹션 -->
+                <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-4">
+                    <h3 class="text-lg font-bold flex items-center"><i class="fa-solid fa-inbox text-amber-400 mr-2"></i> 방문자 DM 답장 수신함</h3>
+                    <p class="text-xs text-slate-400">사용자가 DM 팝업에서 관리자에게 보낸 답장 메시지 목록입니다.</p>
+                    <div id="admin-dm-replies-list" class="space-y-3">
+                        <div class="text-center py-4 text-slate-500 text-xs">불러오는 중...</div>
+                    </div>
+                </div>
+
+                <!-- 4. IP 차단 관리 섹션 -->
                 <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-4">
                     <h3 class="text-lg font-bold flex items-center"><i class="fa-solid fa-network-wired text-indigo-400 mr-2"></i> 차단된 IP 관리 (관리자 전용)</h3>
                     <div class="flex gap-2">
@@ -152,7 +161,7 @@
                     </div>
                 </div>
 
-                <!-- 4. 메모 관리 섹션 -->
+                <!-- 5. 메모 관리 섹션 -->
                 <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-4">
                     <h3 class="text-lg font-bold flex items-center"><i class="fa-solid fa-comments text-emerald-400 mr-2"></i> 친구들 메모 관리 (수정 및 삭제)</h3>
                     <div id="admin-memo-list" class="space-y-3">
@@ -673,7 +682,7 @@
                 }
             }
 
-            // 3. 접속 중인 내 IP로 지정된 DM 실시간 감시 (읽을 때까지 계속 팝업 띄움)
+            // 3. 접속 중인 내 IP로 지정된 DM 실시간 감시 (답장 기능 지원)
             window.onSnapshot(window.doc(window.db, "direct_messages", safeIpDoc), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
@@ -688,7 +697,7 @@
             });
         });
 
-        // 사용자 DM 팝업 띄우기 함수 (읽음 버튼 클릭할 때까지 계속 유지)
+        // 사용자 DM 팝업 띄우기 함수 (관리자에게 답장할 수 있는 입력란 포함)
         function showDmModal(ip, safeIpDoc, message, sentAt) {
             let modal = document.getElementById('user-dm-modal');
             if (!modal) {
@@ -700,21 +709,28 @@
             const timeStr = sentAt ? new Date(sentAt.toDate()).toLocaleString() : '방금 전';
             modal.className = "fixed inset-0 bg-black/80 backdrop-blur-md z-[99999] flex items-center justify-center p-4";
             modal.innerHTML = `
-                <div class="bg-slate-900 border border-sky-500/50 p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-5 shadow-2xl relative">
-                    <div class="w-16 h-16 bg-sky-600/20 border border-sky-500/40 text-sky-400 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
+                <div class="bg-slate-900 border border-sky-500/50 p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-4 shadow-2xl relative">
+                    <div class="w-14 h-14 bg-sky-600/20 border border-sky-500/40 text-sky-400 rounded-full flex items-center justify-center mx-auto text-xl shadow-inner">
                         <i class="fa-solid fa-paper-plane animate-bounce"></i>
                     </div>
                     <div class="space-y-1">
                         <h3 class="text-xl font-black text-white">관리자 전용 DM 메시지</h3>
                         <p class="text-xs text-slate-400">수신 IP: <span class="font-mono text-sky-300 font-bold">${ip}</span> (${timeStr})</p>
                     </div>
-                    <div class="bg-slate-800/90 border border-slate-700 p-5 rounded-2xl text-slate-100 text-sm leading-relaxed text-left whitespace-pre-wrap max-h-60 overflow-y-auto">
+                    <div class="bg-slate-800/90 border border-slate-700 p-4 rounded-2xl text-slate-100 text-sm leading-relaxed text-left whitespace-pre-wrap max-h-48 overflow-y-auto">
                         ${escapeHtml(message || '')}
                     </div>
+
+                    <!-- 관리자에게 답장 보내기 입력 영역 -->
+                    <div class="text-left space-y-1 pt-1">
+                        <label class="text-[11px] font-bold text-sky-400 flex items-center"><i class="fa-solid fa-reply mr-1"></i> 관리자에게 답장 보내기 (선택)</label>
+                        <textarea id="user-reply-input" rows="2" placeholder="답장할 내용을 입력하세요... (빈칸이면 읽음 확인만 처리됩니다)" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500 placeholder-slate-500"></textarea>
+                    </div>
+
                     <div class="pt-2">
-                        <button onclick="confirmReadDm('${safeIpDoc}')" class="w-full bg-sky-600 hover:bg-sky-700 active:scale-95 text-white py-3.5 rounded-xl text-sm font-bold transition shadow-lg flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-check-circle"></i>
-                            <span>메시지 읽음 확인 (닫기)</span>
+                        <button onclick="confirmReadDm('${safeIpDoc}', '${ip}')" class="w-full bg-sky-600 hover:bg-sky-700 active:scale-95 text-white py-3.5 rounded-xl text-sm font-bold transition shadow-lg flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>답장 전송 및 메시지 읽음 확인</span>
                         </button>
                     </div>
                     <p class="text-[11px] text-slate-500">※ 이 메시지는 확인 버튼을 눌러 읽음 처리할 때까지 계속 화면에 노출됩니다.</p>
@@ -722,13 +738,27 @@
             `;
         }
 
-        // DM 확인 완료 클릭 핸들러 (Firestore에서 문서 제거)
-        async function confirmReadDm(safeIpDoc) {
+        // DM 확인 및 답장 처리 함수
+        async function confirmReadDm(safeIpDoc, ip) {
+            const replyInput = document.getElementById('user-reply-input');
+            const replyMsg = replyInput ? replyInput.value.trim() : '';
+
             try {
+                // 작성한 답장이 있는 경우 Firestore 답장 목록에 기록
+                if (replyMsg) {
+                    await window.addDoc(window.collection(window.db, "dm_replies"), {
+                        senderIp: ip,
+                        message: replyMsg,
+                        sentAt: window.serverTimestamp()
+                    });
+                    alert('관리자에게 답장이 성공적으로 전송되었습니다! 🚀');
+                }
+
+                // 수신된 DM 삭제 (읽음 처리 소멸)
                 await window.deleteDoc(window.doc(window.db, "direct_messages", safeIpDoc));
                 hideDmModal();
             } catch(e) {
-                alert('확인 처리 중 오류가 발생했습니다: ' + e.message);
+                alert('처리 중 오류가 발생했습니다: ' + e.message);
             }
         }
 
@@ -963,7 +993,7 @@
                     read: false,
                     sentAt: window.serverTimestamp()
                 });
-                alert(`IP (${targetIp}) 사용자에 DM을 성공적으로 전송했습니다!\n상대방이 읽기 전까지 팝업이 지속됩니다.`);
+                alert(`IP (${targetIp}) 사용자에 DM을 성공적으로 전송했습니다!\n상대방이 읽을 때까지 팝업이 유지됩니다.`);
             } catch(e) {
                 alert('DM 전송 실패: ' + e.message);
             }
@@ -1003,7 +1033,7 @@
             }
         }
 
-        // 관리자 데이터 로드 (방문자 IP 기록, DM 발송, 차단 IP, 메모 관리)
+        // 관리자 데이터 로드 (방문자 IP 기록, DM 발송, DM 답장 수신함, 차단 IP, 메모 관리)
         async function loadAdminData() {
             try {
                 // 1. 방문자 IP 로그 로드
@@ -1046,7 +1076,34 @@
                 });
                 document.getElementById('admin-visitor-list').innerHTML = visitorHtml || '<tr><td colspan="3" class="p-4 text-center text-slate-500">방문자 기록이 없습니다.</td></tr>';
 
-                // 2. 메모 관리
+                // 2. DM 답장 수신함 로드
+                try {
+                    const repliesSnap = await window.getDocs(window.query(window.collection(window.db, "dm_replies"), window.orderBy("sentAt", "desc")));
+                    let replyHtml = "";
+                    repliesSnap.forEach((d) => {
+                        const data = d.data();
+                        const id = d.id;
+                        const replyTime = data.sentAt ? new Date(data.sentAt.toDate()).toLocaleString() : '방금 전';
+                        const safeIp = escapeHtml(data.senderIp || 'unknown');
+                        replyHtml += `
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-2">
+                                <div class="flex justify-between items-center text-xs text-slate-400">
+                                    <span>보낸 IP: <strong class="text-sky-300 font-mono font-bold">${safeIp}</strong> (${replyTime})</span>
+                                    <div class="space-x-2">
+                                        <button onclick="adminPromptDm('${safeIp}')" class="bg-sky-600 hover:bg-sky-700 text-white px-2.5 py-1 rounded text-[11px] font-bold transition">재답장</button>
+                                        <button onclick="adminDeleteReply('${id}')" class="text-red-400 hover:underline text-[11px]">삭제</button>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">${escapeHtml(data.message || '')}</p>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('admin-dm-replies-list').innerHTML = replyHtml || '<p class="text-xs text-slate-500">수신된 답장이 없습니다.</p>';
+                } catch(e) {
+                    console.error("Replies load error:", e);
+                }
+
+                // 3. 메모 관리
                 const memoSnap = await window.getDocs(window.query(window.collection(window.db, "travel_memos"), window.orderBy("createdAt", "desc")));
                 let memoHtml = "";
                 memoSnap.forEach((d) => {
@@ -1067,7 +1124,7 @@
                 });
                 document.getElementById('admin-memo-list').innerHTML = memoHtml || '<p class="text-xs text-slate-500">메모가 없습니다.</p>';
 
-                // 3. 차단된 IP 목록
+                // 4. 차단된 IP 목록
                 const blockedSnap = await window.getDocs(window.collection(window.db, "blocked_ips"));
                 let ipHtml = "";
                 blockedSnap.forEach(d => {
@@ -1089,6 +1146,13 @@
             }
         }
 
+        async function adminDeleteReply(id) {
+            if (confirm('이 DM 답장 기록을 삭제하시겠습니까?')) {
+                await window.deleteDoc(window.doc(window.db, "dm_replies", id));
+                loadAdminData();
+            }
+        }
+
         async function adminDeleteMemo(id) {
             if (confirm('정말 이 메모를 삭제하시겠습니까?')) {
                 await window.deleteDoc(window.doc(window.db, "travel_memos", id));
@@ -1105,13 +1169,13 @@
             }
         }
 
-        // 비밀번호(joon2026) 입력 후 IP 차단 해제 (중첩 doc 함수 제거 수정 완료)
+        // 비밀번호(joon2026) 입력 후 IP 차단 해제
         async function unblockIp(ip, explicitDocId) {
             const pw = prompt(`IP (${ip}) 차단을 해제하시겠습니까?\n차단 해제 비밀번호를 입력해주세요:`);
             if (pw === 'joon2026') {
                 try {
                     const docId = explicitDocId || ip.replace(/\./g, '_');
-                    await window.deleteDoc(window.doc(window.db, "blocked_ips", docId));
+                    await window.deleteDoc(window.doc(window.doc(window.db, "blocked_ips", docId)));
                     alert(`IP (${ip}) 차단이 성공적으로 해제되었습니다.`);
                     loadAdminData();
                 } catch(e) {
