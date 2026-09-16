@@ -504,37 +504,37 @@
             </div>
         </div>
 
-        <!-- 관리자 전용 IP 상세 정보 팝업 모달 -->
-        <div id="admin-ip-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] hidden flex items-center justify-center p-4 text-slate-800">
-            <div class="bg-slate-900 text-white border border-slate-700 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl p-6 space-y-6">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                    <h3 class="font-bold text-lg flex items-center"><i class="fa-solid fa-circle-info text-blue-400 mr-2"></i> 방문자 접속 정보 전체 보기</h3>
-                    <button onclick="closeIpModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
-                </div>
-                <div class="space-y-4 text-sm">
-                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-1">
-                        <span class="text-xs text-slate-400 font-bold uppercase">IP 주소</span>
-                        <p id="modal-ip-val" class="font-mono text-blue-300 font-bold text-base">-</p>
-                    </div>
-                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-1">
-                        <span class="text-xs text-slate-400 font-bold uppercase">기록된 접속 시간</span>
-                        <p id="modal-ip-time" class="text-slate-200 font-medium">-</p>
-                    </div>
-                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-1">
-                        <span class="text-xs text-slate-400 font-bold uppercase">기기 및 브라우저 정보 (User-Agent)</span>
-                        <p id="modal-ip-ua" class="text-slate-300 font-mono text-xs break-all leading-relaxed">-</p>
-                    </div>
-                </div>
-                <div class="flex justify-end pt-2">
-                    <button onclick="closeIpModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition">닫기</button>
-                </div>
-            </div>
-        </div>
-
         <!-- 푸터 -->
         <footer class="bg-white border-t border-slate-200 mt-16 py-6 text-center text-xs text-slate-400">
             <p>&copy; 2026 Gekojoon. All rights reserved. Made by 경준 &amp; idea by 유찬</p>
         </footer>
+    </div>
+
+    <!-- 관리자 전용 IP 상세 정보 팝업 모달 (user-view 바깥으로 이동하여 Admin 모드에서도 정상 노출되도록 배치) -->
+    <div id="admin-ip-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] hidden flex items-center justify-center p-4 text-slate-800">
+        <div class="bg-slate-900 text-white border border-slate-700 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl p-6 space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                <h3 class="font-bold text-lg flex items-center"><i class="fa-solid fa-circle-info text-blue-400 mr-2"></i> 방문자 접속 정보 전체 보기</h3>
+                <button onclick="closeIpModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+            <div class="space-y-4 text-sm">
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-1">
+                    <span class="text-xs text-slate-400 font-bold uppercase">IP 주소</span>
+                    <p id="modal-ip-val" class="font-mono text-blue-300 font-bold text-base">-</p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-1">
+                    <span class="text-xs text-slate-400 font-bold uppercase">기록된 접속 시간</span>
+                    <p id="modal-ip-time" class="text-slate-200 font-medium">-</p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-1">
+                    <span class="text-xs text-slate-400 font-bold uppercase">기기 및 브라우저 정보 (User-Agent)</span>
+                    <p id="modal-ip-ua" class="text-slate-300 font-mono text-xs break-all leading-relaxed">-</p>
+                </div>
+            </div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeIpModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition">닫기</button>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript 로직 -->
@@ -849,7 +849,7 @@
                         visitedAt: visitTime
                     };
                     
-                    // 테이블 셀 내부 flex 배치 및 명시적 버튼 이벤트 지정 (오류 원인 완벽 제거)
+                    // 테이블 셀 내부 flex 배치 및 명시적 버튼 이벤트 지정
                     visitorHtml += `
                         <tr class="hover:bg-slate-800/80 transition border-b border-slate-800">
                             <td class="p-3 font-mono text-blue-300 font-bold">
